@@ -1,0 +1,172 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0f0f0f;
+  color: #f0f0f0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 20px;
+}
+
+.tracker {
+  width: 100%;
+  max-width: 520px;
+}
+
+.date {
+  font-size: 14px;
+  color: #888;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.progress {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 36px;
+}
+
+.habit-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.habit-item {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 18px 20px;
+  transition: border-color 0.2s;
+}
+
+.habit-item:hover {
+  border-color: #444;
+}
+
+.habit-item.done {
+  opacity: 0.45;
+}
+
+.habit-item label {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+
+.habit-item input[type='checkbox'] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #555;
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.habit-item input[type='checkbox']:checked {
+  background: #4ade80;
+  border-color: #4ade80;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23000' d='M2 6l3 3 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 65%;
+}
+
+.habit-name {
+  font-size: 16px;
+  color: #e8e8e8;
+  transition: text-decoration 0.2s, color 0.2s;
+}
+
+.habit-item.done .habit-name {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.habit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.habit-item label {
+  flex: 1;
+  min-width: 0;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0 0 12px;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.delete-btn:hover {
+  color: #e05252;
+}
+
+.add-habit-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.add-habit-input {
+  flex: 1;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: #f0f0f0;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.add-habit-input::placeholder {
+  color: #555;
+}
+
+.add-habit-input:focus {
+  border-color: #444;
+}
+
+.add-habit-btn {
+  background: #4ade80;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.add-habit-btn:hover {
+  opacity: 0.85;
+}

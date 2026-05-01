@@ -1,0 +1,76 @@
+.week-section {
+  margin-bottom: 48px;
+}
+
+.section-heading {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* Frequency goal row layout */
+.goal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.goal-count {
+  font-size: 13px;
+  color: #666;
+  font-variant-numeric: tabular-nums;
+}
+
+.habit-item.done .goal-count {
+  color: #4ade80;
+}
+
+.goal-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.increment-btn {
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #f0f0f0;
+  font-size: 18px;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.increment-btn:hover {
+  background: #3a3a3a;
+  border-color: #4a4a4a;
+}
+
+/* Narrow number input for the target field */
+.add-goal-form .goal-target-input {
+  flex: 0 0 64px;
+  text-align: center;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+/* Hide browser spinner arrows on the number input */
+.goal-target-input::-webkit-outer-spin-button,
+.goal-target-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+.goal-target-input {
+  -moz-appearance: textfield;
+}
