@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { encodeSnapshot } from './utils/share.js'
 import './Week.css'
 
 // Returns "YYYY-Www" using the ISO week number so the key rolls over on
@@ -28,11 +29,50 @@ function Week() {
   const [goals, setGoals] = useState(() => loadState().goals)
   const [taskInput, setTaskInput] = useState('')
   const [goalInput, setGoalInput] = useState({ name: '', target: '' })
+  const [copied, setCopied] = useState(false)
 
   // Write both lists together whenever either changes.
   useEffect(() => {
     localStorage.setItem(weekKey(), JSON.stringify({ tasks, goals }))
   }, [tasks, goals])
+
+  // Clear the "Link copied!" confirmation after 2 seconds.
+  // Returning the cleanup fn ensures the timeout is cancelled if the
+  // component unmounts before it fires.
+  useEffect(() => {
+    if (!copied) return
+    const id = setTimeout(() => setCopied(false), 2000)
+    return () => clearTimeout(id)
+  }, [copied])
+
+  const share = () => {
+    // Read daily habits and today's checked state from their own localStorage key.
+    let habits = []
+    let checked = {}
+    try {
+      const raw = localStorage.getItem('cadence-habits')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        habits = parsed.habits ?? []
+        checked = parsed.checked ?? {}
+      }
+    } catch { /* leave habits/checked empty */ }
+
+    // Snapshot only the names of habits that are currently checked.
+    const checkedHabits = habits.filter((name) => checked[name])
+
+    // "Week 18, 2026" — derived from the same ISO Thursday anchor as weekKey().
+    const now = new Date()
+    const thursday = new Date(now)
+    thursday.setDate(now.getDate() - ((now.getDay() + 6) % 7) + 3)
+    const yearStart = new Date(thursday.getFullYear(), 0, 1)
+    const weekNum = Math.ceil(((thursday - yearStart) / 86400000 + 1) / 7)
+    const weekLabel = `Week ${weekNum}, ${thursday.getFullYear()}`
+
+    const encoded = encodeSnapshot({ habits, checkedHabits, weekLabel, weeklyGoals: { tasks, goals } })
+    const url = window.location.origin + '/cadence/share?data=' + encoded
+    navigator.clipboard.writeText(url).then(() => setCopied(true))
+  }
 
   // --- one-time tasks ---
 
@@ -77,7 +117,12 @@ function Week() {
   return (
     <div className="tracker">
       <p className="date">Week of {weekLabel}</p>
-      <h1>Weekly Goals</h1>
+      <div className="page-header">
+        <h1>Weekly Goals</h1>
+        <button className="share-btn" onClick={share}>
+          {copied ? '✓ Copied' : 'Share'}
+        </button>
+      </div>
 
       {/* ── One-time tasks ── */}
       <section className="week-section">

@@ -1,3 +1,34 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+}
+
+/* h1 normally sets its own margin-bottom; zero it out when inside page-header
+   since the header itself controls spacing. */
+.page-header h1 {
+  margin-bottom: 0;
+}
+
+.share-btn {
+  background: none;
+  border: 1px solid #2a2a2a;
+  color: #888;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.share-btn:hover {
+  color: #f0f0f0;
+  border-color: #444;
+}
+
 .week-section {
   margin-bottom: 48px;
 }
