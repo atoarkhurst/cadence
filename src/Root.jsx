@@ -1,8 +1,9 @@
-import { NavLink, Routes, Route } from 'react-router-dom'
-import App from './App.jsx'
-import Week from './Week.jsx'
+import { NavLink, Outlet } from 'react-router-dom'
 import './Root.css'
 
+// Root is a layout route: it renders the nav, then <Outlet> which React Router
+// fills with whichever child route matched. /share is registered as a sibling
+// route (not a child) so it renders without this nav.
 function Root() {
   return (
     <>
@@ -14,10 +15,7 @@ function Root() {
           Weekly
         </NavLink>
       </nav>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/week" element={<Week />} />
-      </Routes>
+      <Outlet />
     </>
   )
 }
