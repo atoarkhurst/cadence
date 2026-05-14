@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { calculateStreak } from './utils/streak.js'
 import './App.css'
 
 const DEFAULT_HABITS = [
@@ -30,14 +31,33 @@ function App() {
   const [habits, setHabits] = useState(() => loadState().habits)
   const [checked, setChecked] = useState(() => loadState().checked)
   const [input, setInput] = useState('')
+  const [streak, setStreak] = useState({ current: 0, longest: 0 })
 
   // Persist habits + checked + today's date together whenever either changes.
+  // Also update the daily completion log so streak calculation has accurate history.
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({ date: todayDate(), habits, checked }),
     )
+    if (habits.length > 0) {
+      const allDone = habits.every((h) => checked[h])
+      let log = {}
+      try {
+        const raw = localStorage.getItem('cadence-daily-log')
+        if (raw) log = JSON.parse(raw)
+      } catch { /* start fresh */ }
+      log[todayDate()] = allDone
+      localStorage.setItem('cadence-daily-log', JSON.stringify(log))
+    }
   }, [habits, checked])
+
+  // Calculate streak once on mount and store it in state for future UI use.
+  useEffect(() => {
+    const result = calculateStreak()
+    setStreak(result)
+    console.log('Streak:', result)
+  }, [])
 
   const toggle = (habit) =>
     setChecked((prev) => ({ ...prev, [habit]: !prev[habit] }))
@@ -70,6 +90,12 @@ function App() {
   return (
     <div className="tracker">
       <p className="date">{today}</p>
+      <div className="streak">
+        <span className="streak-current">
+          {streak.current > 0 ? `🔥 ${streak.current}` : '—'} day streak
+        </span>
+        <span className="streak-best">Best: {streak.longest} days</span>
+      </div>
       <h1>Today's Habits</h1>
       <p className="progress">
         {completedCount} of {habits.length} complete
