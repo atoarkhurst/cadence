@@ -35,6 +35,23 @@ h1 {
   margin-bottom: 10px;
 }
 
+.streak {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.streak-current {
+  font-size: 16px;
+  color: #f0f0f0;
+}
+
+.streak-best {
+  font-size: 13px;
+  color: #666;
+}
+
 .progress {
   font-size: 14px;
   color: #aaa;
