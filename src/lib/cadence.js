@@ -84,30 +84,3 @@ export async function createEncouragement(weekId, userId, message) {
   if (error) throw error
   return data
 }
-
-export async function loadDailyRhythm() {
-  const { data: auth } = await supabase.auth.getUser()
-  if (!auth.user) return { signedOut: true }
-  const today = new Date().toISOString().slice(0, 10)
-  const { data: items, error } = await supabase.from('daily_items').select('*, daily_completions(completed_on)').eq('user_id', auth.user.id).eq('active', true).order('sort_order')
-  if (error) throw error
-  return { user: auth.user, items: items.map((item) => ({ id: item.id, name: item.title, done: item.daily_completions.some((entry) => entry.completed_on === today) })) }
-}
-
-export async function createDailyItem(userId, title) {
-  const { data, error } = await supabase.from('daily_items').insert({ user_id: userId, title }).select('id').single()
-  if (error) throw error
-  return data.id
-}
-
-export async function setDailyCompletion(itemId, userId, done) {
-  const completedOn = new Date().toISOString().slice(0, 10)
-  const query = supabase.from('daily_completions')
-  const { error } = done ? await query.upsert({ item_id: itemId, user_id: userId, completed_on: completedOn }) : await query.delete().eq('item_id', itemId).eq('user_id', userId).eq('completed_on', completedOn)
-  if (error) throw error
-}
-
-export async function removeDailyItem(id) {
-  const { error } = await supabase.from('daily_items').delete().eq('id', id)
-  if (error) throw error
-}

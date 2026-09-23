@@ -11,10 +11,10 @@ function Root() {
         <span className="wordmark">cadence</span>
         <div className="nav-tabs">
           <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-            Daily
+            Today
           </NavLink>
           <NavLink to="/week" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-            Weekly
+            This week
           </NavLink>
           <NavLink to="/signin" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
             Account
