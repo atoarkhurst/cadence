@@ -8,6 +8,7 @@ import Week from './Week.jsx'
 import ShareView from './pages/ShareView.jsx'
 import Auth from './Auth.jsx'
 import Invite from './Invite.jsx'
+import Review from './Review.jsx'
 
 const routerBase = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
 
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
         <Route element={<Root />}>
           <Route path="/" element={<App />} />
           <Route path="/week" element={<Week />} />
+          <Route path="/review" element={<Review />} />
           <Route path="/signin" element={<Auth />} />
           <Route path="/invite/:token" element={<Invite />} />
         </Route>

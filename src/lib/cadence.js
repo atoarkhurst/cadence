@@ -1,13 +1,9 @@
 import { supabase } from './supabase.js'
 import { choosePartnership } from './partnership.js'
+import { mondayISO, validWeek } from './weeks.js'
 
-function mondayISO() {
-  const date = new Date()
-  date.setDate(date.getDate() - ((date.getDay() + 6) % 7))
-  return date.toISOString().slice(0, 10)
-}
-
-export async function loadCurrentWeek() {
+export async function loadCurrentWeek(startsOn = mondayISO()) {
+  if (!validWeek(startsOn)) throw new Error('Choose a valid week.')
   const { data: auth } = await supabase.auth.getUser()
   const user = auth.user
   if (!user) return { signedOut: true }
@@ -23,11 +19,11 @@ export async function loadCurrentWeek() {
     membership = { partnership_id: partnership.id }
   }
 
-  const { data: week, error: weekError } = await supabase.from('weeks').upsert({ partnership_id: membership.partnership_id, starts_on: mondayISO() }, { onConflict: 'partnership_id,starts_on', ignoreDuplicates: true }).select('id').maybeSingle()
+  const { data: week, error: weekError } = await supabase.from('weeks').upsert({ partnership_id: membership.partnership_id, starts_on: startsOn }, { onConflict: 'partnership_id,starts_on', ignoreDuplicates: true }).select('id').maybeSingle()
   if (weekError) throw weekError
   let weekId = week?.id
   if (!weekId) {
-    const { data: existing, error: existingError } = await supabase.from('weeks').select('id').eq('partnership_id', membership.partnership_id).eq('starts_on', mondayISO()).single()
+    const { data: existing, error: existingError } = await supabase.from('weeks').select('id').eq('partnership_id', membership.partnership_id).eq('starts_on', startsOn).single()
     if (existingError) throw existingError
     weekId = existing.id
   }
@@ -46,7 +42,7 @@ export async function loadCurrentWeek() {
   const profileMap = Object.fromEntries(profiles.map((profile) => [profile.id, profile.display_name]))
   const own = shaped.filter((item) => item.ownerId === user.id)
   const partnerItems = partner ? shaped.filter((item) => item.ownerId === partner.id) : []
-  return { user, weekId, partnershipId: membership.partnership_id, partner, partnerItems, cheers: encouragements.map((item) => ({ ...item, author: profileMap[item.author_id] ?? 'Partner' })), tasks: own.filter((item) => item.kind === 'one_time'), goals: own.filter((item) => item.kind === 'count') }
+  return { user, weekId, startsOn, displayName: profileMap[user.id] || 'You', partnershipId: membership.partnership_id, partner, partnerItems, cheers: encouragements.map((item) => ({ ...item, author: profileMap[item.author_id] ?? 'Partner' })), tasks: own.filter((item) => item.kind === 'one_time'), goals: own.filter((item) => item.kind === 'count') }
 }
 
 export async function createInvitation(partnershipId, userId, email) {
