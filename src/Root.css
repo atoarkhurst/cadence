@@ -1,27 +1,15 @@
 .main-nav {
+  width: min(1040px, calc(100% - 48px));
+  height: 64px;
+  margin: 0 auto;
   display: flex;
-  justify-content: center;
-  gap: 8px;
-  padding: 0 20px 40px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
 }
-
-.nav-link {
-  color: #888;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 6px 14px;
-  border-radius: 6px;
-  transition: color 0.2s, background 0.2s;
-}
-
-.nav-link:hover {
-  color: #f0f0f0;
-}
-
-.nav-link.active {
-  color: #f0f0f0;
-  background: #1a1a1a;
-}
+.wordmark { color: #17181b; font: 600 20px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'DM Sans', sans-serif; letter-spacing: -.04em; }
+.nav-tabs { display: flex; align-items: center; gap: 4px; padding: 4px; background: rgba(17,24,39,.045); border-radius: 10px; }
+.nav-link { color: #777a82; text-decoration: none; font: 600 12px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'DM Sans', sans-serif; padding: 7px 12px; border-radius: 7px; transition: color .2s, background .2s, box-shadow .2s; }
+.nav-link:hover { color: #17181b; }
+.nav-link.active { color: #17181b; background: #fff; box-shadow: 0 1px 3px rgba(17,24,39,.10); }
+@media (max-width: 560px) { .main-nav { width: calc(100% - 32px); } }

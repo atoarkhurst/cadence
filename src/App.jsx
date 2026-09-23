@@ -1,138 +1,62 @@
-import { useState, useEffect } from 'react'
-import { calculateStreak } from './utils/streak.js'
+import { useEffect, useState } from 'react'
+import { createDailyItem, loadDailyRhythm, removeDailyItem, setDailyCompletion } from './lib/cadence.js'
+import { appPath } from './lib/paths.js'
 import './App.css'
 
-const DEFAULT_HABITS = [
-  'Focusmate LeetCode session',
-  'Learn React for 30 minutes',
-  'Meditate for 20 minutes',
-  'Plan tomorrow today',
-]
-
-const STORAGE_KEY = 'cadence-habits'
-
-function todayDate() {
-  return new Date().toISOString().slice(0, 10) // "YYYY-MM-DD"
-}
-
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return { habits: DEFAULT_HABITS, checked: {} }
-    const { date, habits, checked } = JSON.parse(raw)
-    // Habits survive across days; only checked resets when the date changes.
-    return { habits, checked: date === todayDate() ? checked : {} }
-  } catch {
-    return { habits: DEFAULT_HABITS, checked: {} }
-  }
-}
-
 function App() {
-  const [habits, setHabits] = useState(() => loadState().habits)
-  const [checked, setChecked] = useState(() => loadState().checked)
+  const [items, setItems] = useState([])
+  const [user, setUser] = useState(null)
   const [input, setInput] = useState('')
-  const [streak, setStreak] = useState({ current: 0, longest: 0 })
+  const [status, setStatus] = useState('loading')
+  const [error, setError] = useState('')
 
-  // Persist habits + checked + today's date together whenever either changes.
-  // Also update the daily completion log so streak calculation has accurate history.
   useEffect(() => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ date: todayDate(), habits, checked }),
-    )
-    if (habits.length > 0) {
-      const allDone = habits.every((h) => checked[h])
-      let log = {}
-      try {
-        const raw = localStorage.getItem('cadence-daily-log')
-        if (raw) log = JSON.parse(raw)
-      } catch { /* start fresh */ }
-      log[todayDate()] = allDone
-      localStorage.setItem('cadence-daily-log', JSON.stringify(log))
-    }
-  }, [habits, checked])
-
-  // Calculate streak once on mount and store it in state for future UI use.
-  useEffect(() => {
-    const result = calculateStreak()
-    setStreak(result)
-    console.log('Streak:', result)
+    loadDailyRhythm().then((data) => {
+      if (data.signedOut) return setStatus('signed-out')
+      setUser(data.user)
+      setItems(data.items)
+      setStatus('ready')
+    }).catch((nextError) => { setError(nextError.message); setStatus('error') })
   }, [])
 
-  const toggle = (habit) =>
-    setChecked((prev) => ({ ...prev, [habit]: !prev[habit] }))
+  async function toggle(item) {
+    const done = !item.done
+    setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, done } : entry))
+    await setDailyCompletion(item.id, user.id, done)
+  }
 
-  const addHabit = (e) => {
-    e.preventDefault()
+  async function addItem(event) {
+    event.preventDefault()
     const name = input.trim()
-    if (!name || habits.includes(name)) return
-    setHabits((prev) => [...prev, name])
+    if (!name) return
+    const id = await createDailyItem(user.id, name)
+    setItems((current) => [...current, { id, name, done: false }])
     setInput('')
   }
 
-  // Remove the habit from the list and clean up its checked entry.
-  const deleteHabit = (habit) => {
-    setHabits((prev) => prev.filter((h) => h !== habit))
-    setChecked((prev) => {
-      const next = { ...prev }
-      delete next[habit]
-      return next
-    })
+  async function deleteItem(id) {
+    setItems((current) => current.filter((item) => item.id !== id))
+    await removeDailyItem(id)
   }
 
-  const completedCount = Object.values(checked).filter(Boolean).length
-  const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  })
+  if (status === 'loading') return <main className="daily-shell"><p>Loading your day…</p></main>
+  if (status === 'signed-out') return <main className="daily-shell"><h1>Sign in to see your day.</h1><a href={appPath('/signin')}>Sign in</a></main>
+  if (status === 'error') return <main className="daily-shell"><h1>We couldn’t load your day.</h1><p>{error}</p></main>
 
-  return (
-    <div className="tracker">
-      <p className="date">{today}</p>
-      <div className="streak">
-        <span className="streak-current">
-          {streak.current > 0 ? `🔥 ${streak.current}` : '—'} day streak
-        </span>
-        <span className="streak-best">Best: {streak.longest} days</span>
-      </div>
-      <h1>Today's Habits</h1>
-      <p className="progress">
-        {completedCount} of {habits.length} complete
-      </p>
-      <ul className="habit-list">
-        {habits.map((habit) => (
-          <li key={habit} className={`habit-item ${checked[habit] ? 'done' : ''}`}>
-            <label>
-              <input
-                type="checkbox"
-                checked={!!checked[habit]}
-                onChange={() => toggle(habit)}
-              />
-              <span className="habit-name">{habit}</span>
-            </label>
-            <button
-              className="delete-btn"
-              onClick={() => deleteHabit(habit)}
-              aria-label={`Delete ${habit}`}
-            >
-              ×
-            </button>
-          </li>
-        ))}
-      </ul>
-      <form className="add-habit-form" onSubmit={addHabit}>
-        <input
-          type="text"
-          className="add-habit-input"
-          placeholder="New habit…"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <button type="submit" className="add-habit-btn">Add</button>
-      </form>
-    </div>
-  )
+  const completed = items.filter((item) => item.done).length
+  const percent = items.length ? Math.round(completed / items.length * 100) : 0
+  const name = user.email?.split('@')[0] ?? 'there'
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+
+  return <main className="daily-shell">
+    <header className="daily-header"><div><p className="daily-date">{today}</p><h1>Good morning, {name}.</h1><p>Small progress is still progress. Here’s what matters today.</p></div><div className="day-progress" style={{ '--progress': `${percent * 3.6}deg` }}><span>{percent}%</span></div></header>
+    <div className="daily-grid"><section className="today-card"><div className="card-heading"><div><span>Today</span><h2>Your daily rhythm</h2></div><strong>{completed} of {items.length}</strong></div>
+      {items.length === 0 && <p className="hero-copy">Add one small thing you want to complete today.</p>}
+      <ul className="habit-list">{items.map((item) => <li key={item.id} className={`habit-item ${item.done ? 'done' : ''}`}><label><input type="checkbox" checked={item.done} onChange={() => toggle(item)}/><span className="habit-name">{item.name}</span></label><button className="delete-btn" onClick={() => deleteItem(item.id)} aria-label={`Delete ${item.name}`}>×</button></li>)}</ul>
+      <form className="add-habit-form" onSubmit={addItem}><input className="add-habit-input" value={input} onChange={(event) => setInput(event.target.value)} placeholder="Add something for today"/><button className="add-habit-btn">Add</button></form>
+    </section><aside className="daily-side"><section className="streak-card"><span className="side-label">Today’s cadence</span><div className="streak-value">{completed}<small>complete</small></div><p>Your rhythm resets each day while your history stays saved.</p></section><section className="partner-note"><div className="partner-note-top"><div><strong>Shared encouragement</strong><small>Connected to your partnership</small></div></div><p>Real partner check-ins and cheers will appear here as they happen.</p><a href={appPath('/week')}>Open the shared week</a></section></aside></div>
+    <section className="weekly-focus"><div><span className="side-label">This week’s focus</span><h2>Build momentum, not pressure.</h2></div><a href={appPath('/week')}>View the week <span>→</span></a></section>
+  </main>
 }
 
 export default App

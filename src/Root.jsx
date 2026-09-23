@@ -8,12 +8,18 @@ function Root() {
   return (
     <>
       <nav className="main-nav">
-        <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-          Daily
-        </NavLink>
-        <NavLink to="/week" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
-          Weekly
-        </NavLink>
+        <span className="wordmark">cadence</span>
+        <div className="nav-tabs">
+          <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            Daily
+          </NavLink>
+          <NavLink to="/week" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            Weekly
+          </NavLink>
+          <NavLink to="/signin" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>
+            Account
+          </NavLink>
+        </div>
       </nav>
       <Outlet />
     </>
