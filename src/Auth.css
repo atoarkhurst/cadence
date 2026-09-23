@@ -4,3 +4,6 @@
 .partner-settings a{font-size:13px;color:#5754c9}.disconnect-confirm{background:#faf9f7;padding:16px;border-radius:12px}
 .disconnect-button{width:100%;border:1px solid #e4c9c5;background:#fff;color:#a03930;padding:12px;border-radius:10px;margin-top:8px;cursor:pointer}
 .disconnect-button:disabled{opacity:.5;cursor:wait}.partner-settings .connection-error{color:#a03930}
+.profile-settings{margin-top:28px;padding-top:24px;border-top:1px solid #e8e8eb}
+.profile-settings h2{font-size:17px;margin:0 0 8px}.profile-settings form{margin-top:16px}
+.profile-settings .profile-error{color:#a03930}.profile-settings button:disabled{opacity:.5;cursor:default}
