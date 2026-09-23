@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js'
+import { choosePartnership } from './partnership.js'
 
 function mondayISO() {
   const date = new Date()
@@ -11,8 +12,9 @@ export async function loadCurrentWeek() {
   const user = auth.user
   if (!user) return { signedOut: true }
 
-  let { data: membership, error } = await supabase.from('partnership_members').select('partnership_id, joined_at').order('joined_at', { ascending: false }).limit(1).maybeSingle()
+  const { data: memberships, error } = await supabase.from('partnership_members').select('partnership_id, user_id, joined_at')
   if (error) throw error
+  let membership = choosePartnership(memberships, user.id)
   if (!membership) {
     const { data: partnership, error: partnershipError } = await supabase.from('partnerships').insert({ created_by: user.id }).select('id').single()
     if (partnershipError) throw partnershipError
@@ -48,6 +50,11 @@ export async function loadCurrentWeek() {
 }
 
 export async function createInvitation(partnershipId, userId, email) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (email.trim().toLowerCase() === user?.email?.toLowerCase()) throw new Error('Enter your partner’s email, rather than your own.')
+  const { data: pending, error: pendingError } = await supabase.from('invitations').select('token').eq('partnership_id', partnershipId).eq('invited_by', userId).eq('email', email.trim().toLowerCase()).is('accepted_at', null).gt('expires_at', new Date().toISOString()).limit(1).maybeSingle()
+  if (pendingError) throw pendingError
+  if (pending) return pending.token
   const { data, error } = await supabase.from('invitations').insert({ partnership_id: partnershipId, invited_by: userId, email: email.trim().toLowerCase() }).select('token').single()
   if (error) throw error
   return data.token

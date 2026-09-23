@@ -3,6 +3,8 @@ import { encodeSnapshot } from './utils/share.js'
 import { createEncouragement, createIntention, createInvitation, loadCurrentWeek, removeIntention, setProgress } from './lib/cadence.js'
 import { appPath, appUrl } from './lib/paths.js'
 import './Week.css'
+import PartnerInvitations from './PartnerInvitations.jsx'
+import { isComplete } from './lib/partnership.js'
 
 function dateRange() {
   const monday = new Date()
@@ -26,15 +28,23 @@ function Week() {
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteLink, setInviteLink] = useState('')
 
-  useEffect(() => {
-    loadCurrentWeek().then((data) => {
+  async function refreshWeek() {
+    return loadCurrentWeek().then((data) => {
       if (data.signedOut) return setStatus('signed-out')
       setWorkspace(data)
       setTasks(data.tasks)
       setGoals(data.goals)
       setCheers(data.cheers)
       setStatus('ready')
-    }).catch((nextError) => { setError(nextError.message); setStatus('error') })
+    }).catch((nextError) => { setError(nextError.message); setStatus((previous) => previous === 'loading' ? 'error' : previous) })
+  }
+  useEffect(() => {
+    let active = true
+    const refresh = () => { if (active && document.visibilityState === 'visible') refreshWeek() }
+    refresh()
+    const timer = setInterval(refresh, 15000)
+    window.addEventListener('focus', refresh)
+    return () => { active = false; clearInterval(timer); window.removeEventListener('focus', refresh) }
   }, [])
   useEffect(() => {
     if (!copied) return
@@ -45,7 +55,7 @@ function Week() {
   const completed = tasks.filter((item) => item.done).length + goals.filter((item) => item.count >= item.target).length
   const total = tasks.length + goals.length
   const percent = total ? Math.round((completed / total) * 100) : 0
-  const partnerCompleted = workspace?.partnerItems.filter((item) => item.done || item.count >= item.target).length ?? 0
+  const partnerCompleted = workspace?.partnerItems.filter(isComplete).length ?? 0
   const partnerTotal = workspace?.partnerItems.length ?? 0
 
   function share() {
@@ -102,7 +112,7 @@ function Week() {
       const token = await createInvitation(workspace.partnershipId, workspace.user.id, inviteEmail)
       const link = appUrl(`/invite/${token}`)
       setInviteLink(link)
-      await navigator.clipboard.writeText(link)
+      setError('')
     } catch (nextError) { setError(nextError.message) }
   }
 
@@ -147,15 +157,19 @@ function Week() {
       </section>
 
       <aside className="partner-panel"><p className="eyebrow">Your partner</p><h2>{workspace.partner ? `${workspace.partner.display_name}'s week` : 'Invite someone in'}</h2>
+        <p className="hero-copy">Signed in as {workspace.user.email}</p>
+        <button onClick={refreshWeek}>Refresh partner progress</button>
+        {error && <p role="alert">{error}</p>}
         {workspace.partner ? <>
           {workspace.partnerItems.length === 0 && <p className="hero-copy">Your partner hasn’t added any intentions yet.</p>}
-          {workspace.partnerItems.map((item) => <div className={`partner-goal ${item.done || item.count >= item.target ? 'done' : ''}`} key={item.id}><div><span>{item.name}</span><strong>{item.kind === 'count' ? `${item.count} / ${item.target}` : item.done ? 'Done ✓' : 'Not yet'}</strong></div><div className="mini-track"><span style={{ width: `${item.kind === 'count' ? Math.min(100, item.count / item.target * 100) : item.done ? 100 : 0}%` }} /></div></div>)}
+          {workspace.partnerItems.map((item) => <div className={`partner-goal ${isComplete(item) ? 'done' : ''}`} key={item.id}><div><span>{item.name}</span><strong>{item.kind === 'count' ? `${item.count} / ${item.target}` : item.done ? 'Done ✓' : 'Not yet'}</strong></div><div className="mini-track"><span style={{ width: `${item.kind === 'count' ? Math.min(100, item.count / item.target * 100) : item.done ? 100 : 0}%` }} /></div></div>)}
           {cheers.map((cheer) => <div className={`cheer-card ${cheer.author_id === workspace.user.id ? 'own' : ''}`} key={cheer.id}><span className={`avatar ${cheer.author_id === workspace.user.id ? 'you' : 'joey'}`}>{cheer.author?.[0]?.toUpperCase() ?? 'P'}</span><p><strong>{cheer.author_id === workspace.user.id ? 'You' : cheer.author}</strong><small>{cheer.message}</small></p></div>)}
           <form className="cheer-form" onSubmit={addCheer}><input value={note} onChange={(event) => setNote(event.target.value)} placeholder={`Encourage ${workspace.partner.display_name}…`}/><button>↑</button></form>
         </> : <>
-          <p className="hero-copy">Cadence is better with someone in your corner. Invite them using the email they’ll sign in with.</p>
+          <PartnerInvitations user={workspace.user} onAccepted={refreshWeek} />
+          <p className="hero-copy">Enter your partner’s account email. They can accept in This week while signed in. Creating an invitation does not send an email.</p>
           <form className="cheer-form" onSubmit={invitePartner}><input type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} placeholder="partner@example.com" required/><button>→</button></form>
-          {inviteLink && <div className="cheer-card own"><span className="avatar you">✓</span><p><strong>Invite link copied</strong><small>Send it to {inviteEmail}. It expires in seven days.</small></p></div>}
+          {inviteLink && <div className="cheer-card own"><p><strong>Invitation created</strong><small>Ask {inviteEmail} to open This week. You can also share this link. It expires in seven days.</small><input aria-label="Invitation link" readOnly value={inviteLink} onFocus={(event) => event.target.select()}/><button onClick={async () => { try { await navigator.clipboard.writeText(inviteLink) } catch { setError('Select and copy the invitation link above.') } }}>Copy link</button></p></div>}
           {error && <div className="cheer-card"><p><small>{error}</small></p></div>}
         </>}
       </aside>

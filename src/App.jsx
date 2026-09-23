@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createIntention, loadCurrentWeek, setProgress } from './lib/cadence.js'
 import { appPath } from './lib/paths.js'
 import './App.css'
+import { isComplete } from './lib/partnership.js'
 
 function App() {
   const [workspace, setWorkspace] = useState(null)
@@ -50,7 +51,7 @@ function App() {
   const total = tasks.length + goals.length
   const percent = total ? Math.round(completed / total * 100) : 0
   const name = workspace.user.email?.split('@')[0] ?? 'there'
-  const partnerCompleted = workspace.partnerItems.filter((item) => item.done || item.count >= item.target).length
+  const partnerCompleted = workspace.partnerItems.filter(isComplete).length
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
   return <main className="daily-shell">
