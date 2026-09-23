@@ -49,4 +49,33 @@ try {
   assert.equal((await db.query('select count(*)::int n from weekly_reviews')).rows[0].n,0)
   await assert.rejects(db.query("update weekly_reviews set went_well='overwritten'"), /permission denied/)
   console.log('PASS: review isolation, partner visibility, atomic rollback, retry safety, independent reviews, fresh next-week progress, preserved history.')
+
+  await db.exec('reset role')
+  await db.exec(await readFile(new URL('202609230004_partner_repair.sql', root), 'utf8'))
+  const disconnectSQL = await readFile(new URL('202609230006_disconnect_partner.sql', root), 'utf8')
+  await db.exec(disconnectSQL); await db.exec(disconnectSQL)
+  const otherGoal = (await db.query("insert into intentions(week_id,owner_id,title,kind) values ($1,$2,'Walk','one_time') returning id",[week,b])).rows[0].id
+  const invitation = (await db.query("insert into invitations(partnership_id,email,invited_by) values($1,'b@example.com',$2) returning token",[pair,a])).rows[0].token
+  await act(outsider)
+  await assert.rejects(db.query('select disconnect_partner($1)',[pair]), /not a member/)
+  await act(b)
+  await db.query('select disconnect_partner($1)',[pair])
+  await assert.rejects(db.query('select disconnect_partner($1)',[pair]), /not a member/)
+  assert.equal((await db.query('select count(*)::int n from partnership_members where partnership_id=$1',[pair])).rows[0].n,0)
+  assert.equal((await db.query('select value from progress_entries where intention_id=$1',[goal])).rows[0].value,25)
+  const aWeek = (await db.query('select week_id from intentions where id=$1',[goal])).rows[0].week_id
+  const bWeek = (await db.query('select week_id from intentions where id=$1',[otherGoal])).rows[0].week_id
+  assert.notEqual(aWeek,bWeek)
+  await db.query("select set_config('test.email','b@example.com',false)")
+  await assert.rejects(db.query('select accept_invitation($1)',[invitation]), /expired/)
+  await assert.rejects(db.query('insert into partnership_members(partnership_id,user_id) values($1,$2)',[pair,a]), /ended/)
+  await db.exec('grant select,insert,update,delete on all tables in schema public to authenticated; set role authenticated')
+  await act(b)
+  assert.equal((await db.query('select count(*)::int n from intentions where id=$1',[goal])).rows[0].n,0)
+  assert.equal((await db.query('select count(*)::int n from intentions where id=$1',[otherGoal])).rows[0].n,1)
+  assert.equal((await db.query('select count(*)::int n from weekly_reviews')).rows[0].n,0)
+  await assert.rejects(db.query('insert into progress_entries(intention_id,user_id,value) values($1,$2,1)',[goal,b]), /row-level security/)
+  await assert.rejects(db.query("insert into encouragements(week_id,author_id,message) values($1,$2,'Hello')",[aWeek,b]), /row-level security/)
+  console.log('PASS: either member can disconnect, goals/progress preserved, old invitations blocked, former-partner reads and writes denied, shared reviews hidden.')
+
 } finally { await db.close() }
