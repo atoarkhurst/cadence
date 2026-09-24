@@ -173,6 +173,11 @@ function Week() {
           <form className="quick-add goal-add" onSubmit={event => { event.preventDefault(); saveChange(() => addGoal(event)) }}><input value={goalInput.name} onChange={(event) => setGoalInput((item) => ({ ...item, name: event.target.value }))} maxLength={160} aria-label="Repeatable intention" placeholder="Add a repeatable intention"/><input className="target-input" aria-label="Weekly target" type="number" min="1" max="1000000" value={goalInput.target} onChange={(event) => setGoalInput((item) => ({ ...item, target: event.target.value }))} placeholder="Target" inputMode="numeric"/><button>Add</button></form>
         </div>
         </fieldset>
+        {workspace.partner && <section className="encouragement-section" aria-labelledby="received-encouragement">
+          <h3 id="received-encouragement">Encouragement for you</h3>
+          {cheers.filter(cheer => cheer.author_id === workspace.partner.id).map(cheer => <div className="cheer-card" key={cheer.id}><span className="avatar joey">{cheer.author?.[0]?.toUpperCase() ?? 'P'}</span><p><strong>{cheer.author}</strong><small>{cheer.message}</small></p></div>)}
+          {!cheers.some(cheer => cheer.author_id === workspace.partner.id) && <p className="encouragement-hint">Notes from {workspace.partner.display_name} will appear here, alongside your goals.</p>}
+        </section>}
       </section>
 
       <aside className="partner-panel"><p className="eyebrow">Your partner</p><h2>{workspace.partner ? `${workspace.partner.display_name}'s week` : 'Invite someone in'}</h2>
@@ -182,8 +187,12 @@ function Week() {
         {workspace.partner ? <>
           {workspace.partnerItems.length === 0 && <p className="hero-copy">Your partner hasn’t added any intentions yet.</p>}
           {workspace.partnerItems.map((item) => <div className={`partner-goal ${isComplete(item) ? 'done' : ''}`} key={item.id}><div><span>{item.name}</span><strong>{item.kind === 'count' ? `${item.count} / ${item.target}` : item.done ? 'Done ✓' : 'Not yet'}</strong></div><div className="mini-track"><span style={{ width: `${item.kind === 'count' ? Math.min(100, item.count / item.target * 100) : item.done ? 100 : 0}%` }} /></div></div>)}
-          {cheers.map((cheer) => <div className={`cheer-card ${cheer.author_id === workspace.user.id ? 'own' : ''}`} key={cheer.id}><span className={`avatar ${cheer.author_id === workspace.user.id ? 'you' : 'joey'}`}>{cheer.author?.[0]?.toUpperCase() ?? 'P'}</span><p><strong>{cheer.author_id === workspace.user.id ? 'You' : cheer.author}</strong><small>{cheer.message}</small></p></div>)}
+          <section className="encouragement-section" aria-labelledby="sent-encouragement">
+          <h3 id="sent-encouragement">Your encouragement for {workspace.partner.display_name}</h3>
+          <p className="encouragement-hint">Your notes appear beneath their goals when they sign in.</p>
+          {cheers.filter(cheer => cheer.author_id === workspace.user.id).map(cheer => <div className="cheer-card own" key={cheer.id}><span className="avatar you">{workspace.displayName?.[0]?.toUpperCase() ?? 'Y'}</span><p><strong>You</strong><small>{cheer.message}</small></p></div>)}
           <fieldset className="week-controls" disabled={busy || past}><form className="cheer-form" onSubmit={event => { event.preventDefault(); saveChange(() => addCheer(event)) }}><input value={note} onChange={(event) => setNote(event.target.value)} maxLength={280} aria-label="Encouragement" placeholder={`Encourage ${workspace.partner.display_name}…`}/><button aria-label="Send encouragement">↑</button></form></fieldset>
+          </section>
         </> : <>
           <PartnerInvitations user={workspace.user} onAccepted={refreshWeek} />
           <p className="hero-copy">Enter your partner’s account email. They can accept in This week while signed in. Creating an invitation does not send an email.</p>

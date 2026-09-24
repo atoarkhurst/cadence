@@ -55,3 +55,8 @@ button { transition: background .18s, transform .18s, opacity .18s; }
 .cheer-card { display: flex; gap: 11px; margin-top: 18px; padding: 13px; background: #f8f8f6; border-radius: 12px; }.cheer-card p { font-size: 11px; }.cheer-card small { display: block; color: var(--muted); line-height: 1.5; margin-top: 4px; }.cheer-card.own { background: var(--accent-soft); }.cheer-form button { width: 40px; padding: 0; font-size: 16px; }
 .week-footer { text-align: center; padding: 52px 20px 0; color: var(--muted); font-size: 12px; }.week-footer span { display: block; color: var(--faint); text-transform: uppercase; letter-spacing: .09em; font-size: 9px; font-weight: 650; }.week-footer strong { display: block; color: var(--ink); font-size: 22px; letter-spacing: -.03em; margin: 8px 0; }
 @media(max-width:760px){.week-shell{width:calc(100% - 32px);padding-top:42px}.week-hero{align-items:flex-start;flex-direction:column}.week-hero h1{font-size:46px}.week-grid{grid-template-columns:1fr}.people-row{flex-wrap:wrap}.together-pill{margin-left:0}.intentions-panel,.partner-panel,.pulse-card{padding:20px}.goal-add{display:grid;grid-template-columns:1fr 72px}.goal-add button{grid-column:1/-1;padding:11px}}
+.encouragement-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+.encouragement-section h3 { font-size: 14px; line-height: 1.5; font-weight: 600; overflow-wrap: anywhere; }
+.encouragement-hint { color: var(--muted); font-size: 13px; line-height: 1.55; margin-top: 6px; }
+.encouragement-section .cheer-card p { min-width: 0; overflow-wrap: anywhere; }
+.encouragement-section .cheer-card small { white-space: pre-wrap; }
