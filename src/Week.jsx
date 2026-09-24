@@ -170,7 +170,7 @@ function Week() {
             <div className="mini-track"><span style={{ width: `${Math.min(100, goal.count / goal.target * 100)}%` }} /></div>
             <div className="rhythm-actions"><button aria-label={'Decrease ' + goal.name} onClick={() => saveChange(() => adjustGoal(goal, -1))}>−</button><button aria-label={'Increase ' + goal.name} onClick={() => saveChange(() => adjustGoal(goal, 1))}>+</button><button aria-label={'Delete ' + goal.name} onClick={() => saveChange(() => deleteItem(goal.id, setGoals))}>×</button></div>
           </div>)}
-          <form className="quick-add goal-add" onSubmit={event => { event.preventDefault(); saveChange(() => addGoal(event)) }}><input value={goalInput.name} onChange={(event) => setGoalInput((item) => ({ ...item, name: event.target.value }))} maxLength={160} aria-label="Repeatable intention" placeholder="Add a repeatable intention"/><input className="target-input" aria-label="Weekly target" type="number" min="1" max="1000000" value={goalInput.target} onChange={(event) => setGoalInput((item) => ({ ...item, target: event.target.value }))} placeholder="Goal"/><button>Add</button></form>
+          <form className="quick-add goal-add" onSubmit={event => { event.preventDefault(); saveChange(() => addGoal(event)) }}><input value={goalInput.name} onChange={(event) => setGoalInput((item) => ({ ...item, name: event.target.value }))} maxLength={160} aria-label="Repeatable intention" placeholder="Add a repeatable intention"/><input className="target-input" aria-label="Weekly target" type="number" min="1" max="1000000" value={goalInput.target} onChange={(event) => setGoalInput((item) => ({ ...item, target: event.target.value }))} placeholder="Target" inputMode="numeric"/><button>Add</button></form>
         </div>
         </fieldset>
       </section>
@@ -187,8 +187,8 @@ function Week() {
         </> : <>
           <PartnerInvitations user={workspace.user} onAccepted={refreshWeek} />
           <p className="hero-copy">Enter your partner’s account email. They can accept in This week while signed in. Creating an invitation does not send an email.</p>
-          <form className="cheer-form" onSubmit={event => { event.preventDefault(); saveChange(() => invitePartner(event)) }}><input type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} placeholder="partner@example.com" required/><button>→</button></form>
-          {inviteLink && <div className="cheer-card own"><p><strong>Invitation created</strong><small>Ask {inviteEmail} to open This week. You can also share this link. It expires in seven days.</small><input aria-label="Invitation link" readOnly value={inviteLink} onFocus={(event) => event.target.select()}/><button onClick={async () => { try { await navigator.clipboard.writeText(inviteLink) } catch { setError('Select and copy the invitation link above.') } }}>Copy link</button></p></div>}
+          <form className="cheer-form" onSubmit={event => { event.preventDefault(); saveChange(() => invitePartner(event)) }}><input type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} aria-label="Partner’s email" placeholder="partner@example.com" required/><button aria-label="Create invitation">→</button></form>
+          {inviteLink && <div className="cheer-card own"><p className="invitation-result"><strong>Invitation created</strong><small>Ask {inviteEmail} to open This week. You can also share this link. It expires in seven days.</small><input aria-label="Invitation link" readOnly value={inviteLink} onFocus={(event) => event.target.select()}/><button className="review-primary" onClick={async () => { try { await navigator.clipboard.writeText(inviteLink) } catch { setError('Select and copy the invitation link above.') } }}>Copy link</button></p></div>}
           {error && <div className="cheer-card"><p><small>{error}</small></p></div>}
         </>}
       </aside>

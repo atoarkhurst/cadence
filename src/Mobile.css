@@ -1,0 +1,99 @@
+/* Phone layout follows the same hierarchy as desktop, with thumb-sized controls. */
+:root { color-scheme: light; --text-h: #17181b; --text: #777a82; }
+button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid #aeb3ef; outline-offset: 3px; }
+.nav-icon { display: none; }
+.invitation-result { min-width: 0; width: 100%; }
+.invitation-result input { width: 100%; min-width: 0; border: 1px solid #dcddeb; border-radius: 10px; padding: 12px; margin-top: 12px; background: white; color: #44464c; font: inherit; }
+.invitation-result button { margin-top: 8px; }
+
+@media (max-width: 650px) {
+  html { scroll-padding-bottom: 100px; }
+  body { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .main-nav { height: 60px; width: calc(100% - 40px); border-bottom: 0; }
+  .wordmark { font-size: 23px; }
+  .nav-tabs {
+    position: fixed; z-index: 50; bottom: 0; left: 0; right: 0;
+    padding: 8px max(16px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    border-top: 1px solid #e5e5e2; border-radius: 0;
+    background: rgba(250,250,248,.96); backdrop-filter: blur(18px);
+  }
+  .nav-link { min-height: 56px; display: flex; flex-direction: column; justify-content: center; gap: 4px; align-items: center; padding: 6px; font-size: 11px; border-radius: 12px; }
+  .nav-link.active { color: #5058bf; background: #eeeffb; box-shadow: none; }
+  .nav-icon { display: block; width: 22px; height: 22px; }
+  .daily-shell, .week-shell, .review-shell { width: calc(100% - 32px); padding: 22px 0 28px; }
+  .daily-header, .week-hero { margin-bottom: 24px; gap: 16px; }
+  .daily-header h1, .week-hero h1 { font-size: clamp(32px, 9vw, 40px); line-height: 1.1; letter-spacing: -.045em; overflow-wrap: anywhere; margin: 10px 0; }
+  .daily-header>div>p:last-child, .hero-copy { font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+  .daily-header>div:first-child { min-width: 0; }
+  .day-progress { display: none; }
+  .week-hero .share-btn { background: #fff; color: #5058bf; border: 1px solid #e3e4eb; }
+  .week-tools { gap: 8px; margin-bottom: 18px; }
+  .week-tools a { flex: 1 1 auto; font-size: 12px; min-height: 44px; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .daily-grid, .week-grid { gap: 16px; }
+  .today-card, .intentions-panel, .partner-panel, .pulse-card, .streak-card, .partner-note, .review-card { padding: 18px; border-radius: 16px; box-shadow: 0 2px 8px rgba(17,24,39,.025); min-width: 0; }
+  .card-heading, .section-title-row { gap: 12px; margin-bottom: 20px; }
+  .card-heading h2, .section-title-row h2, .partner-panel h2 { font-size: 23px; line-height: 1.2; }
+  .card-heading>strong, .count-pill { flex-shrink: 0; white-space: nowrap; padding: 6px 8px; }
+  .habit-item { padding: 10px 12px; }
+  .habit-item label { min-height: 44px; }
+  .habit-name, .daily-rhythm>div, .intention-row>span, .rhythm-top, .partner-goal>div:first-child { font-size: 15px; line-height: 1.45; min-width: 0; overflow-wrap: anywhere; }
+  .habit-name small, .daily-rhythm small, .sync-note, .daily-empty p { font-size: 12px; }
+  .daily-rhythm { padding: 12px; gap: 6px; }
+  .daily-rhythm button, .daily-rhythm .progress-add { width: 44px; height: 44px; flex: 0 0 44px; font-size: 17px; border-radius: 11px; }
+  .add-habit-form { display: flex; }
+  .add-habit-btn { padding: 0 14px; }
+  .daily-shell input:not([type=checkbox]), .week-shell input, .auth-card input, .review-shell input:not([type=checkbox]), .review-shell textarea, .review-shell select { font-size: 16px; min-height: 48px; }
+  .add-habit-btn, .quick-add button, .cheer-form button { min-width: 48px; min-height: 48px; font-size: 14px; flex-shrink: 0; }
+  .daily-side { gap: 16px; }
+  .streak-card>p, .partner-note>p, .partner-note-top strong { font-size: 14px; }
+  .partner-note-top small { font-size: 12px; }
+  .text-link, .partner-note>a { display: inline-flex; align-items: center; min-height: 44px; font-size: 13px; }
+  .pulse-number { font-size: 34px; }
+  .pulse-label { font-size: 12px; }
+  .people-row { gap: 14px; align-items: flex-start; }
+  .person { min-width: 0; flex: 1 1 110px; gap: 8px; }
+  .person>span:last-child { min-width: 0; overflow-wrap: anywhere; }
+  .avatar { flex: 0 0 34px; }
+  .together-pill { font-size: 11px; }
+  .intention-row { padding: 6px; gap: 6px; }
+  .check-control { width: 44px; height: 44px; flex: 0 0 44px; border: 0; border-radius: 10px; background: radial-gradient(circle, white 9px, #c9cace 10px, #c9cace 11px, transparent 12px); color: transparent; }
+  .complete .check-control { background: radial-gradient(circle, #3d8b68 11px, transparent 12px); color: white; font-size: 14px; }
+  .row-delete { min-width: 44px; min-height: 44px; color: #85878f; }
+  .intention-group h3 { font-size: 13px; }
+  .rhythm-top { gap: 12px; align-items: baseline; }
+  .rhythm-top span, .partner-goal span { min-width: 0; overflow-wrap: anywhere; }
+  .rhythm-top strong, .partner-goal strong { flex-shrink: 0; font-size: 12px; white-space: nowrap; }
+  .rhythm-actions { gap: 8px; }
+  .rhythm-actions button { width: 44px; height: 44px; border-radius: 10px; font-size: 18px; }
+  .goal-add { grid-template-columns: minmax(0,1fr) 80px; }
+  .goal-add>input:first-child { grid-column: 1/-1; }
+  .goal-add .target-input { grid-column: 1; width: 100%; }
+  .goal-add button { grid-column: 2; }
+  .partner-panel>.hero-copy { margin: 12px 0; }
+  .partner-goal>div:first-child { gap: 12px; }
+  .cheer-card { gap: 10px; }
+  .cheer-card p { min-width: 0; font-size: 13px; overflow-wrap: anywhere; }
+  .cheer-card small { font-size: 14px; }
+  .week-footer { padding: 32px 8px 8px; }
+  .week-footer p { font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+  .share-btn, .review-primary, .review-secondary, .auth-primary, .auth-secondary, .disconnect-button { min-height: 44px; }
+  .review-header { margin: 26px 0 24px; }
+  .review-header h1 { font-size: 34px; }
+  .review-steps { justify-content: space-between; gap: 8px; }
+  .review-actions { flex-wrap: wrap; }
+  .review-actions>* { flex: 1; text-align: center; }
+  .review-partner-title { flex-wrap: wrap; }
+  .carry-list label { padding: 12px; }
+  .carry-list input { flex-shrink: 0; }
+  .auth-shell { width: calc(100% - 32px); padding: 22px 0 28px; }
+  .auth-card { width: 100%; min-width: 0; padding: 24px 20px; border-radius: 18px; box-shadow: 0 2px 8px rgba(17,24,39,.025); }
+  .auth-card h1 { font-size: 32px; }
+  .auth-card p { overflow-wrap: anywhere; font-size: 14px; }
+  .auth-card label { font-size: 13px; }
+  .auth-primary, .auth-secondary { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+}

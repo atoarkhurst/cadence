@@ -9,6 +9,7 @@ import ShareView from './pages/ShareView.jsx'
 import Auth from './Auth.jsx'
 import Invite from './Invite.jsx'
 import Review from './Review.jsx'
+import './Mobile.css'
 
 const routerBase = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
 
