@@ -4,21 +4,22 @@ import { createEncouragement, createIntention, createInvitation, loadCurrentWeek
 import { appPath, appUrl } from './lib/paths.js'
 import './Week.css'
 import PartnerInvitations from './PartnerInvitations.jsx'
-import { mondayISO, nextWeek, weekLabel } from './lib/weeks.js'
+import { dayNames, weekLabel } from './lib/weeks.js'
 import './Review.css'
 import { isComplete } from './lib/partnership.js'
 
 
 function Week() {
   const requestedWeek = new URLSearchParams(window.location.search).get('week')
-  const selectedWeek = requestedWeek || mondayISO()
-  const past = selectedWeek < mondayISO()
-  const future = selectedWeek > mondayISO()
+
   const writing = useRef(false)
   const [busy, setBusy] = useState(false)
   const [tasks, setTasks] = useState([])
   const [goals, setGoals] = useState([])
   const [workspace, setWorkspace] = useState(null)
+  const selectedWeek = workspace?.startsOn
+  const past = selectedWeek < workspace?.currentStartsOn
+  const future = selectedWeek > workspace?.currentStartsOn
   const [status, setStatus] = useState('loading')
   const [error, setError] = useState('')
   const [taskInput, setTaskInput] = useState('')
@@ -30,7 +31,7 @@ function Week() {
   const [inviteLink, setInviteLink] = useState('')
 
   const refreshWeek = useCallback(async () => {
-    return loadCurrentWeek(selectedWeek).then((data) => {
+    return loadCurrentWeek(requestedWeek).then((data) => {
       if (data.signedOut) return setStatus('signed-out')
       setWorkspace(data)
       setTasks(data.tasks)
@@ -38,7 +39,7 @@ function Week() {
       setCheers(data.cheers)
       setStatus('ready')
     }).catch((nextError) => { setError(nextError.message); setStatus((previous) => previous === 'loading' ? 'error' : previous) })
-  }, [selectedWeek])
+  }, [requestedWeek])
   useEffect(() => {
     let active = true
     const refresh = () => { if (active && !writing.current && document.visibilityState === 'visible') refreshWeek() }
@@ -133,16 +134,16 @@ function Week() {
 
   return <main className="week-shell">
     <header className="week-hero">
-      <div><p className="eyebrow">{past ? 'Past week' : future ? 'Planning ahead' : 'This week'} · {weekLabel(selectedWeek)}</p><h1>{past ? 'A week to look back on.' : future ? 'A little intention for next week.' : 'Make the week count.'}</h1><p className="hero-copy">A few promises to yourself, with someone in your corner.</p></div>
-      <button className="share-btn" onClick={share}>{copied ? 'Link copied ✓' : 'Share week ↗'}</button>
+      <div><p className="eyebrow">{past ? 'Past week' : future ? 'Planning ahead' : 'This week'} · {weekLabel(selectedWeek)}</p><h1>{past ? 'Your past week.' : future ? 'The week ahead.' : 'Your shared week.'}</h1></div>
+      <span className="compact-progress">{completed} of {total} complete · {percent}%</span><button className="share-btn" onClick={share}>{copied ? 'Link copied ✓' : 'Share week ↗'}</button>
     </header>
 
-    <div className="week-tools"><a href={appPath('/review?week=' + selectedWeek)}>{past ? 'View review & history' : 'Wrap up this week'}</a><a href={appPath('/week?week=' + nextWeek(selectedWeek))}>Plan the following week →</a>{requestedWeek && <a href={appPath('/week')}>Back to this week</a>}<a href={appPath('/review')}>History</a></div>
+    <div className="week-tools">{!past && !future && workspace.previousStartsOn && <a href={appPath('/review?week=' + workspace.previousStartsOn)}>Review last week</a>}<a href={appPath('/review?week=' + selectedWeek)}>{past ? 'View review & history' : 'Review this week'}</a><a href={appPath('/week?week=' + workspace.nextStartsOn)}>Plan the following week →</a>{requestedWeek && <a href={appPath('/week')}>Back to this week</a>}<a href={appPath('/review')}>History</a></div>
     {past && <p className="week-notice">This is a past week. Its intentions and progress are kept here for you to look back on.</p>}
     {future && <p className="week-notice">You’re planning ahead. Today continues to show the current week. Aim for 3–4 intentions you can realistically complete.</p>}
     {error && <p role="alert">{error}</p>}
     {busy && <p role="status">Saving…</p>}
-    <section className="pulse-card">
+    <section className="pulse-card compact-pulse">
       <div className="pulse-copy"><span className="pulse-number">{percent}%</span><span className="pulse-label">of your intentions complete</span></div>
       <div className="progress-track"><span style={{ width: `${percent}%` }} /></div>
       <div className="people-row">
@@ -181,7 +182,7 @@ function Week() {
       </section>
 
       <aside className="partner-panel"><p className="eyebrow">Your partner</p><h2>{workspace.partner ? `${workspace.partner.display_name}'s week` : 'Invite someone in'}</h2>
-        <p className="hero-copy">Signed in as {workspace.user.email}</p>
+
         <button className="review-secondary" disabled={busy} onClick={refreshWeek}>Refresh progress</button>
         {error && <p role="alert">{error}</p>}
         {workspace.partner ? <>
@@ -202,7 +203,7 @@ function Week() {
         </>}
       </aside>
     </div>
-    <footer className="week-footer"><span>Next check-in</span><strong>Saturday morning</strong><p>Ten minutes to celebrate, reflect, and choose what comes next.</p><a className="review-primary" href={appPath('/review?week=' + selectedWeek)}>Start your weekly check-in →</a></footer>
+    <footer className="week-footer"><span>Next check-in</span><strong>{dayNames[workspace.schedule?.start_day ?? 1]}</strong><p>Ten minutes to celebrate, reflect, and choose what comes next.</p><a className="review-primary" href={appPath('/review?week=' + (workspace.previousStartsOn || selectedWeek))}>Open your weekly check-in →</a></footer>
   </main>
 }
 

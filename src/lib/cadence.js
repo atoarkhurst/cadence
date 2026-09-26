@@ -1,9 +1,9 @@
 import { supabase } from './supabase.js'
 import { choosePartnership } from './partnership.js'
-import { mondayISO, validWeek } from './weeks.js'
+import { currentWeek, nextWeek, validWeek } from './weeks.js'
 
-export async function loadCurrentWeek(startsOn = mondayISO()) {
-  if (!validWeek(startsOn)) throw new Error('Choose a valid week.')
+export async function loadCurrentWeek(startsOn = null) {
+  if (startsOn && !validWeek(startsOn)) throw new Error('Choose a valid week.')
   const { data: auth } = await supabase.auth.getUser()
   const user = auth.user
   if (!user) return { signedOut: true }
@@ -19,14 +19,29 @@ export async function loadCurrentWeek(startsOn = mondayISO()) {
     membership = { partnership_id: partnership.id }
   }
 
-  const { data: week, error: weekError } = await supabase.from('weeks').upsert({ partnership_id: membership.partnership_id, starts_on: startsOn }, { onConflict: 'partnership_id,starts_on', ignoreDuplicates: true }).select('id').maybeSingle()
-  if (weekError) throw weekError
-  let weekId = week?.id
-  if (!weekId) {
-    const { data: existing, error: existingError } = await supabase.from('weeks').select('id').eq('partnership_id', membership.partnership_id).eq('starts_on', startsOn).single()
-    if (existingError) throw existingError
-    weekId = existing.id
+  const { data: schedule, error: scheduleError } = await supabase.from('week_schedules').select('*').eq('partnership_id', membership.partnership_id).maybeSingle()
+  if (scheduleError && !['PGRST205', '42P01'].includes(scheduleError.code)) throw scheduleError
+  const currentStartsOn = currentWeek(schedule)
+  const { data: history, error: historyError } = await supabase.from('weeks').select('*').eq('partnership_id', membership.partnership_id).order('starts_on', { ascending: false })
+  if (historyError) throw historyError
+  startsOn ||= currentStartsOn
+  let week = history.find(item => item.starts_on === startsOn) || history.find(item => item.original_starts_on === startsOn)
+  if (!week) {
+    const day = schedule && startsOn >= schedule.effective_on ? schedule.start_day : schedule?.previous_day ?? 1
+    if (!validWeek(startsOn, day)) throw new Error('The shared week schedule has changed. Open This week to see your current plan.')
+    const result = await supabase.from('weeks').upsert({ partnership_id: membership.partnership_id, starts_on: startsOn }, { onConflict: 'partnership_id,starts_on', ignoreDuplicates: true }).select('*').maybeSingle()
+    if (result.error) throw result.error
+    week = result.data
+    if (!week) {
+      const existing = await supabase.from('weeks').select('*').eq('partnership_id', membership.partnership_id).eq('starts_on', startsOn).single()
+      if (existing.error) throw existing.error
+      week = existing.data
+    }
   }
+  startsOn = week.starts_on
+  const weekId = week.id
+  const nextStartsOn = history.find(item => item.id === week.next_week_id)?.starts_on || nextWeek(startsOn)
+  const previousStartsOn = history.find(item => item.starts_on < currentStartsOn)?.starts_on
 
   const { data: intentions, error: intentionError } = await supabase.from('intentions').select('*, progress_entries(value)').eq('week_id', weekId).order('sort_order')
   if (intentionError) throw intentionError
@@ -42,7 +57,7 @@ export async function loadCurrentWeek(startsOn = mondayISO()) {
   const profileMap = Object.fromEntries(profiles.map((profile) => [profile.id, profile.display_name]))
   const own = shaped.filter((item) => item.ownerId === user.id)
   const partnerItems = partner ? shaped.filter((item) => item.ownerId === partner.id) : []
-  return { user, weekId, startsOn, displayName: profileMap[user.id] || 'You', partnershipId: membership.partnership_id, partner, partnerItems, cheers: encouragements.map((item) => ({ ...item, author: profileMap[item.author_id] ?? 'Partner' })), tasks: own.filter((item) => item.kind === 'one_time'), goals: own.filter((item) => item.kind === 'count') }
+  return { user, weekId, startsOn, currentStartsOn, nextStartsOn, previousStartsOn, schedule, displayName: profileMap[user.id] || 'You', partnershipId: membership.partnership_id, partner, partnerItems, cheers: encouragements.map((item) => ({ ...item, author: profileMap[item.author_id] ?? 'Partner' })), tasks: own.filter((item) => item.kind === 'one_time'), goals: own.filter((item) => item.kind === 'count') }
 }
 
 export async function createInvitation(partnershipId, userId, email) {

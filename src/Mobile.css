@@ -1,3 +1,21 @@
+/* Goals come first at every size. */
+.daily-shell, .week-shell { padding-top: 24px; }
+.daily-header, .week-hero { margin-bottom: 16px; gap: 16px; }
+.daily-header h1, .week-hero h1 { font-size: 30px; line-height: 1.15; margin: 6px 0; letter-spacing: -.035em; }
+.week-hero { align-items: center; }
+.week-hero>div:first-child { flex: 1; }
+.compact-progress { color: #777a82; font-size: 13px; white-space: nowrap; }
+.compact-pulse { display: none; }
+.week-tools { margin-bottom: 18px; }
+.week-tools a { font-size: 12px; padding: 8px 10px; }
+.section-title-row, .card-heading { margin-bottom: 16px; }
+.daily-header .day-progress { width: 54px; height: 54px; }
+.daily-header .day-progress::after { inset: 5px; }
+.daily-review-link { display: inline-block; margin: 0 0 16px; padding: 8px 0; font-size: 13px; color: #5058bf; }
+.auth-card select { padding: 12px; border: 1px solid #dddeda; border-radius: 10px; background: white; font: inherit; color: #17181b; width: 100%; }
+.schedule-preview { background: #f6f6fa; padding: 14px; border-radius: 12px; margin: 12px 0; font-size: 13px; }
+.schedule-preview p { margin-top: 8px; }
+@media(min-width: 900px) { .week-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); } }
 /* Phone layout follows the same hierarchy as desktop, with thumb-sized controls. */
 :root { color-scheme: light; --text-h: #17181b; --text: #777a82; }
 button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
@@ -24,7 +42,7 @@ button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
   .nav-icon { display: block; width: 22px; height: 22px; }
   .daily-shell, .week-shell, .review-shell { width: calc(100% - 32px); padding: 22px 0 28px; }
   .daily-header, .week-hero { margin-bottom: 24px; gap: 16px; }
-  .daily-header h1, .week-hero h1 { font-size: clamp(32px, 9vw, 40px); line-height: 1.1; letter-spacing: -.045em; overflow-wrap: anywhere; margin: 10px 0; }
+  .daily-header h1, .week-hero h1 { font-size: 28px; line-height: 1.1; letter-spacing: -.045em; overflow-wrap: anywhere; margin: 8px 0; }
   .daily-header>div>p:last-child, .hero-copy { font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
   .daily-header>div:first-child { min-width: 0; }
   .day-progress { display: none; }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createIntention, loadCurrentWeek, setProgress } from './lib/cadence.js'
 import { appPath } from './lib/paths.js'
 import './App.css'
+import { weekLabel } from './lib/weeks.js'
 import { isComplete } from './lib/partnership.js'
 
 function App() {
@@ -68,10 +69,11 @@ function App() {
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
   return <main className="daily-shell">
-    <header className="daily-header"><div><p className="daily-date">{today}</p><h1>{greeting}, {name}.</h1><p>One small step is enough. Move this week forward.</p></div><div className="day-progress" style={{ '--progress': `${percent * 3.6}deg` }}><span>{percent}%</span></div></header>
+    <header className="daily-header"><div><p className="daily-date">{today}</p><h1>{greeting}, {name}.</h1><p>{weekLabel(workspace.startsOn)} · {completed} of {total} complete</p></div><div className="day-progress" style={{ '--progress': `${percent * 3.6}deg` }}><span>{percent}%</span></div></header>
+    {workspace.previousStartsOn && <a className="daily-review-link" href={appPath('/review?week=' + workspace.previousStartsOn)}>Review last week →</a>}
     {error && <p role="alert">{error}</p>}
     {busy && <p role="status">Saving…</p>}
-    <div className="daily-grid"><section className="today-card"><div className="card-heading"><div><span>Your week, today</span><h2>What can you move forward?</h2></div><strong>{completed} of {total}</strong></div>
+    <div className="daily-grid"><section className="today-card"><div className="card-heading"><div><span>Your week, today</span><h2>Your intentions</h2></div><strong>{completed} of {total}</strong></div>
       {total === 0 && <div className="daily-empty"><h3>Start with one achievable intention.</h3><p>Anything you add here also appears on your weekly plan.</p></div>}
       <ul className="habit-list">{tasks.map((task) => <li key={task.id} className={`habit-item ${task.done ? 'done' : ''}`}><label><input type="checkbox" checked={task.done} disabled={busy} onChange={() => saveChange(() => toggleTask(task))}/><span className="habit-name">{task.name}<small>Finish once</small></span></label></li>)}</ul>
       <div className="daily-rhythms">{goals.map((goal) => <div className={`daily-rhythm ${goal.count >= goal.target ? 'done' : ''}`} key={goal.id}><div><span>{goal.name}</span><small>Build a rhythm · {goal.count} of {goal.target}</small></div><button aria-label={'Decrease ' + goal.name} onClick={() => saveChange(() => adjustGoal(goal, -1))} disabled={busy || goal.count === 0}>−</button><button className="progress-add" disabled={busy} aria-label={'Increase ' + goal.name} onClick={() => saveChange(() => adjustGoal(goal, 1))}>+1</button></div>)}</div>
