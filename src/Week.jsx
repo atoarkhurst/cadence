@@ -28,6 +28,8 @@ function Week() {
   const [cheers, setCheers] = useState([])
   const [copied, setCopied] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
+  const [taskOpen, setTaskOpen] = useState(false)
+  const [goalOpen, setGoalOpen] = useState(false)
   const [inviteLink, setInviteLink] = useState('')
 
   const refreshWeek = useCallback(async () => {
@@ -56,7 +58,6 @@ function Week() {
 
   const completed = tasks.filter((item) => item.done).length + goals.filter((item) => item.count >= item.target).length
   const total = tasks.length + goals.length
-  const percent = total ? Math.round((completed / total) * 100) : 0
   const partnerCompleted = workspace?.partnerItems.filter(isComplete).length ?? 0
   const partnerTotal = workspace?.partnerItems.length ?? 0
 
@@ -81,6 +82,7 @@ function Week() {
     const id = await createIntention(workspace.weekId, workspace.user.id, taskInput.trim(), 'one_time')
     setTasks((items) => [...items, { id, name: taskInput.trim(), done: false }])
     setTaskInput('')
+    setTaskOpen(false)
   }
 
   async function addGoal(event) {
@@ -90,6 +92,7 @@ function Week() {
     const id = await createIntention(workspace.weekId, workspace.user.id, goalInput.name.trim(), 'count', target)
     setGoals((items) => [...items, { id, name: goalInput.name.trim(), target, count: 0 }])
     setGoalInput({ name: '', target: '' })
+    setGoalOpen(false)
   }
 
   async function addCheer(event) {
@@ -128,14 +131,14 @@ function Week() {
     } catch (nextError) { setError(nextError.message) }
   }
 
-  if (status === 'loading') return <main className="week-shell"><p className="hero-copy">Loading your week…</p></main>
-  if (status === 'signed-out') return <main className="week-shell"><h1>Sign in to see your week.</h1><a className="share-btn" href={appPath('/signin')}>Sign in</a></main>
-  if (status === 'error') return <main className="week-shell"><h1>We couldn’t load your week.</h1><p className="hero-copy">{error}</p></main>
+  if (status === 'loading') return <main className="week-shell week-studio"><p className="hero-copy">Loading your week…</p></main>
+  if (status === 'signed-out') return <main className="week-shell week-studio"><h1>Sign in to see your week.</h1><a className="share-btn" href={appPath('/signin')}>Sign in</a></main>
+  if (status === 'error') return <main className="week-shell week-studio"><h1>We couldn’t load your week.</h1><p className="hero-copy">{error}</p></main>
 
-  return <main className="week-shell">
+  return <main className="week-shell week-studio">
     <header className="week-hero">
-      <div><p className="eyebrow">{past ? 'Past week' : future ? 'Planning ahead' : 'This week'} · {weekLabel(selectedWeek)}</p><h1>{past ? 'Your past week.' : future ? 'The week ahead.' : 'Your shared week.'}</h1></div>
-      <span className="compact-progress">{completed} of {total} complete · {percent}%</span><button className="share-btn" onClick={share}>{copied ? 'Link copied ✓' : 'Share week ↗'}</button>
+      <div><p className="eyebrow">{past ? 'Past week' : future ? 'Planning ahead' : 'This week'} · {weekLabel(selectedWeek)}</p><h1>{past ? 'Your past week.' : future ? 'The week ahead.' : 'Find your rhythm.'}</h1></div>
+      <div className="rhythm-signature" aria-hidden="true"><span/><span/><span/><span/><span/><span/><span/></div><button className="share-btn" onClick={share}>{copied ? 'Link copied ✓' : 'Share week ↗'}</button>
     </header>
 
     <div className="week-tools">{!past && !future && workspace.previousStartsOn && <a href={appPath('/review?week=' + workspace.previousStartsOn)}>Review last week</a>}<a href={appPath('/review?week=' + selectedWeek)}>{past ? 'View review & history' : 'Review this week'}</a><a href={appPath('/week?week=' + workspace.nextStartsOn)}>Plan the following week →</a>{requestedWeek && <a href={appPath('/week')}>Back to this week</a>}<a href={appPath('/review')}>History</a></div>
@@ -143,35 +146,27 @@ function Week() {
     {future && <p className="week-notice">You’re planning ahead. Today continues to show the current week. Aim for 3–4 intentions you can realistically complete.</p>}
     {error && <p role="alert">{error}</p>}
     {busy && <p role="status">Saving…</p>}
-    <section className="pulse-card compact-pulse">
-      <div className="pulse-copy"><span className="pulse-number">{percent}%</span><span className="pulse-label">of your intentions complete</span></div>
-      <div className="progress-track"><span style={{ width: `${percent}%` }} /></div>
-      <div className="people-row">
-        <div className="person"><span className="avatar you">{workspace.displayName[0]?.toUpperCase()}</span><span><strong>You</strong><small>{completed} of {total} complete</small></span></div>
-        {workspace.partner && <div className="person"><span className="avatar joey">{workspace.partner.display_name?.[0]?.toUpperCase() ?? 'P'}</span><span><strong>{workspace.partner.display_name}</strong><small>{partnerCompleted} of {partnerTotal} complete</small></span></div>}
-        <span className="together-pill">{workspace.partner ? 'In it together' : 'Room for two'}</span>
-      </div>
-    </section>
-
     <div className="week-grid">
       <section className="intentions-panel">
-        <div className="section-title-row"><div><p className="eyebrow">Your intentions</p><h2>Keep it achievable</h2></div><span className="count-pill">{total} this week</span></div>
+        <div className="section-title-row"><div><p className="eyebrow">Your intentions</p><h2>Your week</h2></div><span className="count-pill">{completed}<span> / {total} done</span></span></div>
         {!total && <p className="hero-copy">Start with 3–4 small promises. Finish once is a checkbox; count progress works for pages read, applications sent, or sessions completed.</p>}
         <fieldset className="week-controls" disabled={busy || past}>
-        <div className="intention-group"><h3>Finish once</h3>
+        <div className="intention-group"><h3><span>01</span> Finish once</h3>
           {tasks.map((task) => <div className={`intention-row ${task.done ? 'complete' : ''}`} key={task.id}>
-            <button className="check-control" aria-label={'Mark ' + task.name + (task.done ? ' incomplete' : ' complete')} onClick={() => saveChange(() => toggleTask(task))}>{task.done ? '✓' : ''}</button>
+            <button className="check-control" aria-pressed={task.done} aria-label={'Mark ' + task.name + (task.done ? ' incomplete' : ' complete')} onClick={() => saveChange(() => toggleTask(task))}>{task.done ? '✓' : ''}</button>
             <span>{task.name}</span><button className="row-delete" aria-label={'Delete ' + task.name} onClick={() => saveChange(() => deleteItem(task.id, setTasks))}>×</button>
           </div>)}
-          <form className="quick-add" onSubmit={event => { event.preventDefault(); saveChange(() => addTask(event)) }}><input value={taskInput} onChange={(event) => setTaskInput(event.target.value)} maxLength={160} aria-label="One-time intention" placeholder="Add a one-time intention"/><button>Add</button></form>
+          {!past && <button type="button" className="add-intention-trigger" aria-expanded={taskOpen} aria-controls="task-composer" onClick={() => setTaskOpen(value => !value)}>{taskOpen ? '− Close' : '+ Add an intention'}</button>}
+          {taskOpen && <form id="task-composer" className="quick-add" onSubmit={event => { event.preventDefault(); saveChange(() => addTask(event)) }}><input value={taskInput} onChange={(event) => setTaskInput(event.target.value)} maxLength={160} aria-label="One-time intention" placeholder="What would make this week feel good?" required autoFocus/><button>Add</button></form>}
         </div>
-        <div className="intention-group"><h3>Build a rhythm</h3>
+        <div className="intention-group"><h3><span>02</span> Build a rhythm</h3>
           {goals.map((goal) => <div className="rhythm-row" key={goal.id}>
             <div className="rhythm-top"><span>{goal.name}</span><strong>{goal.count} / {goal.target}</strong></div>
             <div className="mini-track"><span style={{ width: `${Math.min(100, goal.count / goal.target * 100)}%` }} /></div>
             <div className="rhythm-actions"><button aria-label={'Decrease ' + goal.name} onClick={() => saveChange(() => adjustGoal(goal, -1))}>−</button><button aria-label={'Increase ' + goal.name} onClick={() => saveChange(() => adjustGoal(goal, 1))}>+</button><button aria-label={'Delete ' + goal.name} onClick={() => saveChange(() => deleteItem(goal.id, setGoals))}>×</button></div>
           </div>)}
-          <form className="quick-add goal-add" onSubmit={event => { event.preventDefault(); saveChange(() => addGoal(event)) }}><input value={goalInput.name} onChange={(event) => setGoalInput((item) => ({ ...item, name: event.target.value }))} maxLength={160} aria-label="Repeatable intention" placeholder="Add a repeatable intention"/><input className="target-input" aria-label="Weekly target" type="number" min="1" max="1000000" value={goalInput.target} onChange={(event) => setGoalInput((item) => ({ ...item, target: event.target.value }))} placeholder="Target" inputMode="numeric"/><button>Add</button></form>
+          {!past && <button type="button" className="add-intention-trigger" aria-expanded={goalOpen} aria-controls="goal-composer" onClick={() => setGoalOpen(value => !value)}>{goalOpen ? '− Close' : '+ Add a repeatable intention'}</button>}
+          {goalOpen && <form id="goal-composer" className="quick-add goal-add" onSubmit={event => { event.preventDefault(); saveChange(() => addGoal(event)) }}><input value={goalInput.name} onChange={(event) => setGoalInput((item) => ({ ...item, name: event.target.value }))} maxLength={160} aria-label="Repeatable intention" placeholder="e.g. Read 100 pages" required autoFocus/><input className="target-input" aria-label="Weekly target" type="number" min="1" max="1000000" value={goalInput.target} onChange={(event) => setGoalInput((item) => ({ ...item, target: event.target.value }))} placeholder="Target" inputMode="numeric" required/><button>Add</button></form>}
         </div>
         </fieldset>
         {workspace.partner && <section className="encouragement-section" aria-labelledby="received-encouragement">
@@ -181,9 +176,9 @@ function Week() {
         </section>}
       </section>
 
-      <aside className="partner-panel"><p className="eyebrow">Your partner</p><h2>{workspace.partner ? `${workspace.partner.display_name}'s week` : 'Invite someone in'}</h2>
+      <aside className="partner-panel"><div className="section-title-row"><div><p className="eyebrow">In your corner</p><h2>{workspace.partner ? workspace.partner.display_name + '’s week' : 'Room for your person'}</h2></div>{workspace.partner && <span className="count-pill">{partnerCompleted}<span> / {partnerTotal} done</span></span>}</div>
 
-        <button className="review-secondary" disabled={busy} onClick={refreshWeek}>Refresh progress</button>
+        <button className="partner-refresh" disabled={busy} onClick={refreshWeek}>Refresh progress</button>
         {error && <p role="alert">{error}</p>}
         {workspace.partner ? <>
           {workspace.partnerItems.length === 0 && <p className="hero-copy">Your partner hasn’t added any intentions yet.</p>}
