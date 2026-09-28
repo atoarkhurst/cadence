@@ -7,7 +7,7 @@
   justify-content: space-between;
   border-bottom: 1px solid rgba(17, 24, 39, 0.08);
 }
-.wordmark { color: #17181b; font: 600 20px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'DM Sans', sans-serif; letter-spacing: -.04em; }
+.wordmark { color: #17181b; font: 700 28px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'DM Sans', sans-serif; letter-spacing: -.055em; flex-shrink: 0; }
 .nav-tabs { display: flex; align-items: center; gap: 4px; padding: 4px; background: rgba(17,24,39,.045); border-radius: 10px; }
 .nav-link { color: #777a82; text-decoration: none; font: 600 12px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'DM Sans', sans-serif; padding: 7px 12px; border-radius: 7px; transition: color .2s, background .2s, box-shadow .2s; }
 .nav-link:hover { color: #17181b; }

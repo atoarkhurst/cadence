@@ -29,7 +29,7 @@ button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
   html { scroll-padding-bottom: 100px; }
   body { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
   .main-nav { height: 60px; width: calc(100% - 40px); border-bottom: 0; }
-  .wordmark { font-size: 23px; }
+  .wordmark { font-size: 27px; }
   .nav-tabs {
     position: fixed; z-index: 50; bottom: 0; left: 0; right: 0;
     padding: 8px max(16px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
