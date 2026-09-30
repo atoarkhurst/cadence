@@ -9,6 +9,7 @@ import ShareView from './pages/ShareView.jsx'
 import Auth from './Auth.jsx'
 import Invite from './Invite.jsx'
 import Review from './Review.jsx'
+import Encouragement from './Encouragement.jsx'
 import './Mobile.css'
 import './WeekStudio.css'
 
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/" element={<App />} />
           <Route path="/week" element={<Week />} />
           <Route path="/review" element={<Review />} />
+          <Route path="/encouragement" element={<Encouragement />} />
           <Route path="/signin" element={<Auth />} />
           <Route path="/invite/:token" element={<Invite />} />
         </Route>

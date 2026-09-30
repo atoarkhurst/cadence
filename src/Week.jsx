@@ -7,9 +7,12 @@ import PartnerInvitations from './PartnerInvitations.jsx'
 import { dayNames, weekLabel } from './lib/weeks.js'
 import './Review.css'
 import { isComplete } from './lib/partnership.js'
+import { useEncouragement } from './lib/encouragement-context.js'
+import EncouragementNote from './EncouragementNote.jsx'
 
 
 function Week() {
+  const { items: notifications } = useEncouragement()
   const requestedWeek = new URLSearchParams(window.location.search).get('week')
 
   const writing = useRef(false)
@@ -55,6 +58,11 @@ function Week() {
     const timer = setTimeout(() => setCopied(false), 1800)
     return () => clearTimeout(timer)
   }, [copied])
+  useEffect(() => {
+    if (status === 'ready' && window.location.hash === '#received-encouragement') {
+      document.getElementById('received-encouragement')?.scrollIntoView({ block: 'start' })
+    }
+  }, [status, selectedWeek])
 
   const completed = tasks.filter((item) => item.done).length + goals.filter((item) => item.count >= item.target).length
   const total = tasks.length + goals.length
@@ -171,7 +179,7 @@ function Week() {
         </fieldset>
         {workspace.partner && <section className="encouragement-section" aria-labelledby="received-encouragement">
           <h3 id="received-encouragement">Encouragement for you</h3>
-          {cheers.filter(cheer => cheer.author_id === workspace.partner.id).map(cheer => <div className="cheer-card" key={cheer.id}><span className="avatar joey">{cheer.author?.[0]?.toUpperCase() ?? 'P'}</span><p><strong>{cheer.author}</strong><small>{cheer.message}</small></p></div>)}
+          {cheers.filter(cheer => cheer.author_id === workspace.partner.id).map(cheer => <EncouragementNote key={cheer.id} notification={notifications.find(item => item.encouragement_id === cheer.id)} author={cheer.author} message={cheer.message} />)}
           {!cheers.some(cheer => cheer.author_id === workspace.partner.id) && <p className="encouragement-hint">Notes from {workspace.partner.display_name} will appear here, alongside your goals.</p>}
         </section>}
       </section>

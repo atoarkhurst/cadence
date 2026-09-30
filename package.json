@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build && node scripts/prepare-pages-build.mjs",
     "lint": "eslint .",
-    "test": "node --test src/lib/*.test.js && node scripts/test-weekly-review.mjs && node scripts/test-week-schedule.mjs",
+    "test": "node --test src/lib/*.test.js && node scripts/test-weekly-review.mjs && node scripts/test-week-schedule.mjs && node scripts/test-encouragement.mjs && node scripts/test-push-worker.mjs",
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"

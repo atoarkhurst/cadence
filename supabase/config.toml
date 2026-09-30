@@ -1,0 +1,4 @@
+[functions.encouragement-push]
+# Browser configuration uses explicit getUser verification. Dispatch uses its own
+# server-only secret, not a browser JWT or publishable API key.
+verify_jwt = false
