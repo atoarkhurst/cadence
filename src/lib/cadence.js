@@ -63,12 +63,12 @@ export async function loadCurrentWeek(startsOn = null) {
 export async function createInvitation(partnershipId, userId, email) {
   const { data: { user } } = await supabase.auth.getUser()
   if (email.trim().toLowerCase() === user?.email?.toLowerCase()) throw new Error('Enter your partner’s email, rather than your own.')
-  const { data: pending, error: pendingError } = await supabase.from('invitations').select('token').eq('partnership_id', partnershipId).eq('invited_by', userId).eq('email', email.trim().toLowerCase()).is('accepted_at', null).gt('expires_at', new Date().toISOString()).limit(1).maybeSingle()
+  const { data: pending, error: pendingError } = await supabase.from('invitations').select('token, email, expires_at').eq('partnership_id', partnershipId).eq('invited_by', userId).eq('email', email.trim().toLowerCase()).is('accepted_at', null).gt('expires_at', new Date().toISOString()).limit(1).maybeSingle()
   if (pendingError) throw pendingError
-  if (pending) return pending.token
-  const { data, error } = await supabase.from('invitations').insert({ partnership_id: partnershipId, invited_by: userId, email: email.trim().toLowerCase() }).select('token').single()
+  if (pending) return pending
+  const { data, error } = await supabase.from('invitations').insert({ partnership_id: partnershipId, invited_by: userId, email: email.trim().toLowerCase() }).select('token, email, expires_at').single()
   if (error) throw error
-  return data.token
+  return data
 }
 
 export async function acceptInvitation(token) {

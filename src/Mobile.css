@@ -21,7 +21,9 @@
 button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 3px solid #aeb3ef; outline-offset: 3px; }
 .nav-icon { display: none; }
-.invitation-result { min-width: 0; width: 100%; }
+.invitation-result { min-width: 0; width: 100%; overflow-wrap: anywhere; }
+.invitation-result [role="status"] { display: block; margin-top: 8px; font-size: 13px; }
+.invitation-check .encouragement-hint { overflow-wrap: anywhere; }
 .invitation-result input { width: 100%; min-width: 0; border: 1px solid #dcddeb; border-radius: 10px; padding: 12px; margin-top: 12px; background: white; color: #44464c; font: inherit; }
 .invitation-result button { margin-top: 8px; }
 

@@ -6,26 +6,53 @@ export default function PartnerInvitations({ user, onAccepted }) {
   const [invites, setInvites] = useState([])
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
+  const [checking, setChecking] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
   useEffect(() => {
     let active = true
+    let running = false
     async function refresh() {
-      const { data, error } = await supabase.from('invitations').select('token, invited_by').eq('email', user.email.toLowerCase()).is('accepted_at', null).gt('expires_at', new Date().toISOString())
-      if (!active) return
-      if (error) { setMessage(error.message); return }
-      const ids = [...new Set(data.map((item) => item.invited_by))]
-      const profiles = ids.length ? await supabase.from('profiles').select('id, display_name').in('id', ids) : { data: [] }
-      if (active) setInvites(data.map((item) => ({ ...item, name: profiles.data?.find((profile) => profile.id === item.invited_by)?.display_name || 'Your partner' })))
+      if (running || document.visibilityState !== 'visible') return
+      running = true
+      try {
+        const { data, error } = await supabase.from('invitations').select('token, invited_by').eq('email', user.email.trim().toLowerCase()).is('accepted_at', null).gt('expires_at', new Date().toISOString())
+        if (error) throw error
+        if (!active) return
+        const ids = [...new Set(data.map((item) => item.invited_by))]
+        const profiles = ids.length ? await supabase.from('profiles').select('id, display_name').in('id', ids) : { data: [] }
+        if (active) {
+          setInvites(data.map((item) => ({ ...item, name: profiles.data?.find((profile) => profile.id === item.invited_by)?.display_name || 'Your partner' })))
+          setMessage('')
+        }
+      } catch {
+        if (active) setMessage('We couldn’t check your invitations. Please try again, or open the link your partner shared.')
+      } finally {
+        running = false
+        if (active) setChecking(false)
+      }
     }
     refresh()
     const timer = setInterval(refresh, 15000)
     window.addEventListener('focus', refresh)
-    return () => { active = false; clearInterval(timer); window.removeEventListener('focus', refresh) }
-  }, [user.id, user.email])
+    document.addEventListener('visibilitychange', refresh)
+    return () => { active = false; clearInterval(timer); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', refresh) }
+  }, [user.id, user.email, refreshKey])
   async function accept(token) {
     setBusy(true)
-    try { await acceptInvitation(token); await onAccepted() }
+    setMessage('')
+    try {
+      await acceptInvitation(token)
+      if (localStorage.getItem('cadence-pending-invite') === token) localStorage.removeItem('cadence-pending-invite')
+      setInvites((items) => items.filter((item) => item.token !== token))
+      await onAccepted()
+    }
     catch (error) { setMessage(error.message) }
     finally { setBusy(false) }
   }
-  return <>{invites.map((invite) => <div className="cheer-card" key={invite.token}><p><strong>{invite.name} invited you</strong><small>Share your weekly intentions and progress.</small><button disabled={busy} onClick={() => accept(invite.token)}>{busy ? 'Connecting…' : 'Accept invitation'}</button></p></div>)}{message && <p role="alert">{message}</p>}</>
+  return <section className="invitation-check" aria-label="Received invitations">
+    <p className="encouragement-hint">Signed in as {user.email}</p>
+    <button className="partner-refresh" disabled={busy || checking} onClick={() => { setChecking(true); setRefreshKey((value) => value + 1) }}>{checking ? 'Checking invitations…' : 'Check invitations'}</button>
+    {!invites.length && !message && <p className="encouragement-hint" role="status">{checking ? 'Looking for an invitation to this account…' : 'No pending invitations for this email.'}</p>}
+    {invites.map((invite) => <div className="cheer-card" key={invite.token}><p><strong>{invite.name} invited you</strong><small>Connect to see each other’s goals and send encouragement.</small><button disabled={busy} onClick={() => accept(invite.token)}>{busy ? 'Connecting…' : 'Accept invitation'}</button></p></div>)}{message && <p role="alert">{message}</p>}
+  </section>
 }

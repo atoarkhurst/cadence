@@ -33,7 +33,8 @@ function Week() {
   const [inviteEmail, setInviteEmail] = useState('')
   const [taskOpen, setTaskOpen] = useState(false)
   const [goalOpen, setGoalOpen] = useState(false)
-  const [inviteLink, setInviteLink] = useState('')
+  const [invitation, setInvitation] = useState(null)
+  const [inviteCopied, setInviteCopied] = useState(false)
 
   const refreshWeek = useCallback(async () => {
     return loadCurrentWeek(requestedWeek).then((data) => {
@@ -132,9 +133,9 @@ function Week() {
     event.preventDefault()
     if (!inviteEmail.trim()) return
     try {
-      const token = await createInvitation(workspace.partnershipId, workspace.user.id, inviteEmail)
-      const link = appUrl(`/invite/${token}`)
-      setInviteLink(link)
+      const created = await createInvitation(workspace.partnershipId, workspace.user.id, inviteEmail)
+      setInvitation({ ...created, link: appUrl(`/invite/${created.token}`) })
+      setInviteCopied(false)
       setError('')
     } catch (nextError) { setError(nextError.message) }
   }
@@ -157,7 +158,7 @@ function Week() {
     <div className="week-grid">
       <section className="intentions-panel">
         <div className="section-title-row"><div><p className="eyebrow">Your intentions</p><h2>Your week</h2></div><span className="count-pill">{completed}<span> / {total} done</span></span></div>
-        {!total && <p className="hero-copy">Start with 3–4 small promises. Finish once is a checkbox; count progress works for pages read, applications sent, or sessions completed.</p>}
+        {!total && <p className="hero-copy">Choose 3–4 achievable goals. Use “Finish once” for one-time tasks and “Build a rhythm” to count pages, applications, or sessions.</p>}
         <fieldset className="week-controls" disabled={busy || past}>
         <div className="intention-group"><h3><span>01</span> Finish once</h3>
           {tasks.map((task) => <div className={`intention-row ${task.done ? 'complete' : ''}`} key={task.id}>
@@ -184,9 +185,9 @@ function Week() {
         </section>}
       </section>
 
-      <aside className="partner-panel"><div className="section-title-row"><div><p className="eyebrow">In your corner</p><h2>{workspace.partner ? workspace.partner.display_name + '’s week' : 'Room for your person'}</h2></div>{workspace.partner && <span className="count-pill">{partnerCompleted}<span> / {partnerTotal} done</span></span>}</div>
+      <aside className="partner-panel"><div className="section-title-row"><div><p className="eyebrow">In your corner</p><h2>{workspace.partner ? workspace.partner.display_name + '’s week' : 'Invite your partner'}</h2></div>{workspace.partner && <span className="count-pill">{partnerCompleted}<span> / {partnerTotal} done</span></span>}</div>
 
-        <button className="partner-refresh" disabled={busy} onClick={refreshWeek}>Refresh progress</button>
+        {workspace.partner && <button className="partner-refresh" disabled={busy} onClick={refreshWeek}>Refresh progress</button>}
         {error && <p role="alert">{error}</p>}
         {workspace.partner ? <>
           {workspace.partnerItems.length === 0 && <p className="hero-copy">Your partner hasn’t added any intentions yet.</p>}
@@ -198,10 +199,10 @@ function Week() {
           <fieldset className="week-controls" disabled={busy || past}><form className="cheer-form" onSubmit={event => { event.preventDefault(); saveChange(() => addCheer(event)) }}><input value={note} onChange={(event) => setNote(event.target.value)} maxLength={280} aria-label="Encouragement" placeholder={`Encourage ${workspace.partner.display_name}…`}/><button aria-label="Send encouragement">↑</button></form></fieldset>
           </section>
         </> : <>
-          <PartnerInvitations user={workspace.user} onAccepted={refreshWeek} />
-          <p className="hero-copy">Enter your partner’s account email. They can accept in This week while signed in. Creating an invitation does not send an email.</p>
-          <form className="cheer-form" onSubmit={event => { event.preventDefault(); saveChange(() => invitePartner(event)) }}><input type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} aria-label="Partner’s email" placeholder="partner@example.com" required/><button aria-label="Create invitation">→</button></form>
-          {inviteLink && <div className="cheer-card own"><p className="invitation-result"><strong>Invitation created</strong><small>Ask {inviteEmail} to open This week. You can also share this link. It expires in seven days.</small><input aria-label="Invitation link" readOnly value={inviteLink} onFocus={(event) => event.target.select()}/><button className="review-primary" onClick={async () => { try { await navigator.clipboard.writeText(inviteLink) } catch { setError('Select and copy the invitation link above.') } }}>Copy link</button></p></div>}
+          <PartnerInvitations key={workspace.user.id} user={workspace.user} onAccepted={refreshWeek} />
+          <p className="hero-copy">Enter the email your partner uses for Cadence. They can accept on their “This week” page, or you can send them an invitation link. We won’t send an email.</p>
+          <form className="cheer-form" onSubmit={event => { event.preventDefault(); saveChange(() => invitePartner(event)) }}><input type="email" value={inviteEmail} onChange={(event) => setInviteEmail(event.target.value)} aria-label="Partner’s email" placeholder="partner@example.com" required disabled={busy}/><button disabled={busy} aria-label="Create invitation">→</button></form>
+          {invitation && <div className="cheer-card own"><div className="invitation-result"><strong>Invitation ready for {invitation.email}</strong><small>Send this link to your partner. They’ll need to sign in with that email to accept. If they’re already signed in, they can also check for invitations on “This week”.</small><small>Expires {new Date(invitation.expires_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}.</small><input aria-label="Invitation link" readOnly value={invitation.link} onFocus={(event) => event.target.select()}/><button className="review-primary" onClick={async () => { try { await navigator.clipboard.writeText(invitation.link); setInviteCopied(true) } catch { setError('Select and copy the invitation link above.') } }}>{inviteCopied ? 'Link copied ✓' : 'Copy invitation link'}</button><span role="status">{inviteCopied ? 'Ready to paste into a text or message.' : ''}</span></div></div>}
           {error && <div className="cheer-card"><p><small>{error}</small></p></div>}
         </>}
       </aside>
