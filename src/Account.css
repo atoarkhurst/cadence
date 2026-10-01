@@ -1,56 +1,416 @@
-.account-shell *, .signin-shell * { box-sizing: border-box; }
-.account-shell { width: min(1040px, calc(100% - 48px)); margin: 0 auto; padding: 38px 0 48px; text-align: left; color: #252c25; }
-.account-header { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 30px; }
-.account-eyebrow, .signin-card .auth-kicker { color: #72806b; font-size: 10px; letter-spacing: .13em; text-transform: uppercase; font-weight: 650; }
-.account-header h1 { font-size: 36px; font-weight: 550; letter-spacing: -.045em; margin: 8px 0 10px; }
-.account-header p:not(.account-eyebrow) { color: #6d7568; font-size: 14px; margin: 0; }
-.account-week-link { color: #4c6148; font-size: 13px; text-decoration: none; white-space: nowrap; padding: 12px 0; }
-.account-week-link span { margin-left: 8px; }
-.account-layout { display: grid; grid-template-columns: 235px minmax(0, 1fr); gap: 38px; align-items: start; }
-.account-sidebar { min-width: 0; }
-.account-identity { display: flex; align-items: center; gap: 12px; padding: 18px 0 24px; }
-.account-monogram { display: grid; place-items: center; background: #e9edde; border-radius: 13px; width: 42px; height: 42px; flex: 0 0 42px; color: #53664b; font-size: 29px; font-weight: 650; letter-spacing: -.06em; }
-.account-identity div { min-width: 0; }.account-identity strong { display: block; font-size: 13px; font-weight: 550; }
-.account-identity div>span { display: block; font-size: 11px; color: #7a8174; overflow-wrap: anywhere; margin-top: 4px; }
-.account-nav { display: grid; gap: 5px; }
-.account-nav button { border: 1px solid transparent; border-radius: 10px; background: transparent; color: #596450; text-align: left; padding: 13px 15px; cursor: pointer; font: inherit; }
-.account-nav button>span { display: block; font-size: 13px; font-weight: 550; }.account-nav small { display: block; font-size: 11px; color: #7f8877; margin-top: 4px; }
-.account-nav button:hover { background: #f0f2ea; }.account-nav button[aria-current="page"] { background: #e9eedf; border-color: #dde4d3; color: #354a31; }
-.account-signout { display: flex; justify-content: space-between; width: 100%; margin-top: 24px; padding: 18px 15px; border: 0; border-top: 1px solid #e0e5d9; background: transparent; color: #757d70; cursor: pointer; font-size: 12px; }
-.account-content.auth-card { width: 100%; min-width: 0; border-radius: 16px; border: 1px solid #dfe4d7; background: #fffefa; padding: 32px 36px; box-shadow: 0 4px 24px #30402803; min-height: 365px; }
-.account-content .account-eyebrow { font-size: 10px; margin: 0 0 24px; color: #7c8772; }
-.account-content .profile-settings,.account-content .partner-settings,.account-content .notification-settings { border: 0; margin: 0; padding: 0; }
-.account-content .partner-settings + .profile-settings { border-top: 1px solid #e1e6d9; margin-top: 24px; padding-top: 24px; }
-.account-content h2 { font-size: 25px; line-height: 1.2; font-weight: 550; letter-spacing: -.035em; margin: 0 0 10px; }
-.account-content p { color: #71796b; font-size: 14px; line-height: 1.6; margin: 8px 0 18px; }
-.account-content form { margin-top: 24px; max-width: 420px; }
-.account-content label,.signin-card label { font-size: 12px; color: #505a49; font-weight: 550; }
-.account-content input,.account-content select,.signin-card input { color: #293326; background: #fff; border: 1px solid #d9e0d1; border-radius: 8px; min-height: 46px; }
-.account-content input:focus,.account-content select:focus,.signin-card input:focus { border-color: #829572; box-shadow: 0 0 0 3px #edf1e7; }
-.account-content .auth-primary,.signin-card .auth-primary { background: #445b3d; border-radius: 8px; font-size: 13px; min-height: 44px; margin-top: 18px; }
-.account-content .auth-primary { align-self: flex-start; padding-inline: 24px; }.account-content .auth-primary:disabled,.signin-card button:disabled { opacity: .5; cursor: default; }
-.account-content .auth-secondary { width: auto; text-align: left; color: #586d4e; padding-left: 0; }
-.account-content .notification-settings .auth-secondary { border: 1px solid #d3dcc9; border-radius: 8px; padding: 12px 18px; background: #f1f4eb; }
-.account-content .account-field-hint { font-size: 11px; color: #7a8471; margin: 7px 0 20px; }
-.account-content .account-feedback,.signin-card .account-feedback { background: #eef3e8; color: #42583a; border-radius: 8px; padding: 12px 14px; font-size: 13px; margin-top: 18px; }
-.account-content .account-error,.signin-card .account-error { background: #fbefea; color: #943f35; }
-.account-footer { margin: 24px 0 0 273px; font-size: 11px; color: #8a9380; }
-.account-shell :focus-visible,.signin-shell :focus-visible { outline: 2px solid #81956d; outline-offset: 4px; }
-.signin-shell { padding-top: 58px; text-align: left; }
-.signin-card.auth-card { background: #fffefa; border-color: #dfe4d7; box-shadow: 0 8px 32px #30402805; border-radius: 16px; }
-.signin-card h1 { font-size: 34px; font-weight: 550; letter-spacing: -.04em; margin: 16px 0; }
-.signin-card p { color: #727a6c; }.signin-card form { margin-top: 26px; }
-.signin-label-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; margin-bottom: 7px; }
-.signin-label-row label { margin: 0; }.auth-text-button { border: 0; background: none; color: #52684a; font: inherit; font-size: 12px; cursor: pointer; padding: 5px 0; text-decoration: underline; text-underline-offset: 3px; }
-.signin-alternative { border-top: 1px solid #e5e8df; margin-top: 24px; padding-top: 12px; text-align: center; }.signin-alternative .auth-secondary { color: #53644b; }
-.signin-card .signin-email { font-weight: 550; color: #44583c; overflow-wrap: anywhere; }.signin-footnote { font-size: 11px; color: #8b9382; margin-top: 24px; text-align: center; }
+.account-shell *,
+.signin-shell * {
+  box-sizing: border-box;
+}
+.account-shell {
+  width: min(1040px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 38px 0 48px;
+  text-align: left;
+  color: #252c25;
+}
+.account-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+.account-eyebrow,
+.signin-card .auth-kicker {
+  color: #72806b;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-weight: 650;
+}
+.account-header h1 {
+  font-size: 36px;
+  font-weight: 550;
+  letter-spacing: -0.045em;
+  margin: 8px 0 10px;
+}
+.account-header p:not(.account-eyebrow) {
+  color: #6d7568;
+  font-size: 14px;
+  margin: 0;
+}
+.account-week-link {
+  color: #4c6148;
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 12px 0;
+}
+.account-week-link span {
+  margin-left: 8px;
+}
+.account-layout {
+  display: grid;
+  grid-template-columns: 235px minmax(0, 1fr);
+  gap: 38px;
+  align-items: start;
+}
+.account-sidebar {
+  min-width: 0;
+}
+.account-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0 24px;
+}
+.account-monogram {
+  display: grid;
+  place-items: center;
+  background: #e9edde;
+  border-radius: 13px;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  color: #53664b;
+  font-size: 29px;
+  font-weight: 650;
+  letter-spacing: -0.06em;
+}
+.account-identity div {
+  min-width: 0;
+}
+.account-identity strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 550;
+}
+.account-identity div > span {
+  display: block;
+  font-size: 11px;
+  color: #7a8174;
+  overflow-wrap: anywhere;
+  margin-top: 4px;
+}
+.account-nav {
+  display: grid;
+  gap: 5px;
+}
+.account-nav button {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #596450;
+  text-align: left;
+  padding: 13px 15px;
+  cursor: pointer;
+  font: inherit;
+}
+.account-nav button > span {
+  display: block;
+  font-size: 13px;
+  font-weight: 550;
+}
+.account-nav small {
+  display: block;
+  font-size: 11px;
+  color: #7f8877;
+  margin-top: 4px;
+}
+.account-nav button:hover {
+  background: #f0f2ea;
+}
+.account-nav button[aria-current='page'] {
+  background: #e9eedf;
+  border-color: #dde4d3;
+  color: #354a31;
+}
+.account-signout {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 24px;
+  padding: 18px 15px;
+  border: 0;
+  border-top: 1px solid #e0e5d9;
+  background: transparent;
+  color: #757d70;
+  cursor: pointer;
+  font-size: 12px;
+}
+.account-content.auth-card {
+  width: 100%;
+  min-width: 0;
+  border-radius: 16px;
+  border: 1px solid #dfe4d7;
+  background: #fffefa;
+  padding: 32px 36px;
+  box-shadow: 0 4px 24px #30402803;
+  min-height: 365px;
+}
+.account-content .account-eyebrow {
+  font-size: 10px;
+  margin: 0 0 24px;
+  color: #7c8772;
+}
+.account-content .profile-settings,
+.account-content .partner-settings,
+.account-content .notification-settings {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.account-content .partner-settings + .profile-settings {
+  border-top: 1px solid #e1e6d9;
+  margin-top: 24px;
+  padding-top: 24px;
+}
+.account-content h2 {
+  font-size: 25px;
+  line-height: 1.2;
+  font-weight: 550;
+  letter-spacing: -0.035em;
+  margin: 0 0 10px;
+}
+.account-content p {
+  color: #71796b;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 8px 0 18px;
+}
+.account-content form {
+  margin-top: 24px;
+  max-width: 420px;
+}
+.account-content label,
+.signin-card label {
+  font-size: 12px;
+  color: #505a49;
+  font-weight: 550;
+}
+.account-content input,
+.account-content select,
+.signin-card input {
+  color: #293326;
+  background: #fff;
+  border: 1px solid #d9e0d1;
+  border-radius: 8px;
+  min-height: 46px;
+}
+.account-content input:focus,
+.account-content select:focus,
+.signin-card input:focus {
+  border-color: #829572;
+  box-shadow: 0 0 0 3px #edf1e7;
+}
+.account-content .auth-primary,
+.signin-card .auth-primary {
+  background: #445b3d;
+  border-radius: 8px;
+  font-size: 13px;
+  min-height: 44px;
+  margin-top: 18px;
+}
+.account-content .auth-primary {
+  align-self: flex-start;
+  padding-inline: 24px;
+}
+.account-content .auth-primary:disabled,
+.signin-card button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.account-content .auth-secondary {
+  width: auto;
+  text-align: left;
+  color: #586d4e;
+  padding-left: 0;
+}
+.account-content .notification-settings .auth-secondary {
+  border: 1px solid #d3dcc9;
+  border-radius: 8px;
+  padding: 12px 18px;
+  background: #f1f4eb;
+}
+.account-content .account-field-hint {
+  font-size: 11px;
+  color: #7a8471;
+  margin: 7px 0 20px;
+}
+.account-content .account-feedback,
+.signin-card .account-feedback {
+  background: #eef3e8;
+  color: #42583a;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  margin-top: 18px;
+}
+.account-content .account-error,
+.signin-card .account-error {
+  background: #fbefea;
+  color: #943f35;
+}
+.account-footer {
+  margin: 24px 0 0 273px;
+  font-size: 11px;
+  color: #8a9380;
+}
+.account-shell :focus-visible,
+.signin-shell :focus-visible {
+  outline: 2px solid #81956d;
+  outline-offset: 4px;
+}
+.signin-shell {
+  padding-top: 58px;
+  text-align: left;
+}
+.signin-card.auth-card {
+  background: #fffefa;
+  border-color: #dfe4d7;
+  box-shadow: 0 8px 32px #30402805;
+  border-radius: 16px;
+}
+.signin-card h1 {
+  font-size: 34px;
+  font-weight: 550;
+  letter-spacing: -0.04em;
+  margin: 16px 0;
+}
+.signin-card p {
+  color: #727a6c;
+}
+.signin-card form {
+  margin-top: 26px;
+}
+.signin-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  margin-bottom: 7px;
+}
+.signin-label-row label {
+  margin: 0;
+}
+.auth-text-button {
+  border: 0;
+  background: none;
+  color: #52684a;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 5px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.signin-alternative {
+  border-top: 1px solid #e5e8df;
+  margin-top: 24px;
+  padding-top: 12px;
+  text-align: center;
+}
+.signin-alternative .auth-secondary {
+  color: #53644b;
+}
+.signin-card .signin-email {
+  font-weight: 550;
+  color: #44583c;
+  overflow-wrap: anywhere;
+}
+.signin-footnote {
+  font-size: 11px;
+  color: #8b9382;
+  margin-top: 24px;
+  text-align: center;
+}
 @media (max-width: 760px) {
-  .account-shell { width: calc(100% - 32px); padding: 24px 0 30px; }
-  .account-header { align-items: flex-start; gap: 14px; margin-bottom: 20px; }.account-header h1 { font-size: 30px; }.account-header p:not(.account-eyebrow) { max-width: 240px; line-height: 1.5; font-size: 13px; }.account-week-link { font-size: 11px; }
-  .account-layout { grid-template-columns: minmax(0,1fr); gap: 18px; }.account-sidebar { display: contents; }.account-identity { display: none; }
-  .account-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }.account-nav button { min-height: 46px; padding: 12px; text-align: center; border-color: #e1e5d9; }.account-nav small { display: none; }.account-nav button>span { font-size: 12px; }
-  .account-content.auth-card { padding: 25px 22px; min-height: 0; border-radius: 13px; }.account-content h2 { font-size: 23px; }.account-content .account-eyebrow { margin-bottom: 20px; }
-  .account-content input,.account-content select,.signin-card input { font-size: 16px; min-height: 48px; }.account-content .auth-primary { width: 100%; }
-  .account-signout { grid-row: 3; margin-top: 0; padding: 16px 4px; }.account-footer { margin: 12px 0; text-align: center; }
-  .signin-shell { padding-top: 28px; }.signin-card.auth-card { padding: 28px 24px; }.signin-card h1 { font-size: 30px; }.signin-label-row .auth-text-button { min-height: 36px; }.signin-footnote { margin-top: 20px; }
+  .account-shell {
+    width: calc(100% - 32px);
+    padding: 24px 0 30px;
+  }
+  .account-header {
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .account-header h1 {
+    font-size: 30px;
+  }
+  .account-header p:not(.account-eyebrow) {
+    max-width: 240px;
+    line-height: 1.5;
+    font-size: 13px;
+  }
+  .account-week-link {
+    font-size: 11px;
+  }
+  .account-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .account-sidebar {
+    display: contents;
+  }
+  .account-identity {
+    display: none;
+  }
+  .account-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .account-nav button {
+    min-height: 46px;
+    padding: 12px;
+    text-align: center;
+    border-color: #e1e5d9;
+  }
+  .account-nav small {
+    display: none;
+  }
+  .account-nav button > span {
+    font-size: 12px;
+  }
+  .account-content.auth-card {
+    padding: 25px 22px;
+    min-height: 0;
+    border-radius: 13px;
+  }
+  .account-content h2 {
+    font-size: 23px;
+  }
+  .account-content .account-eyebrow {
+    margin-bottom: 20px;
+  }
+  .account-content input,
+  .account-content select,
+  .signin-card input {
+    font-size: 16px;
+    min-height: 48px;
+  }
+  .account-content .auth-primary {
+    width: 100%;
+  }
+  .account-signout {
+    grid-row: 3;
+    margin-top: 0;
+    padding: 16px 4px;
+  }
+  .account-footer {
+    margin: 12px 0;
+    text-align: center;
+  }
+  .signin-shell {
+    padding-top: 28px;
+  }
+  .signin-card.auth-card {
+    padding: 28px 24px;
+  }
+  .signin-card h1 {
+    font-size: 30px;
+  }
+  .signin-label-row .auth-text-button {
+    min-height: 36px;
+  }
+  .signin-footnote {
+    margin-top: 20px;
+  }
 }

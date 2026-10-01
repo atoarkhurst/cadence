@@ -20,19 +20,21 @@ The frontend degrades safely while setup is incomplete. Existing messaging still
    ```
 
    The repository's function configuration disables gateway JWT verification because the handler explicitly verifies the user's JWT for browser requests and a separate secret for dispatch. Do not remove these handler checks.
+
 3. Generate one VAPID key pair with the maintained `web-push` utility (`npx web-push generate-vapid-keys`) and a separate high-entropy dispatch secret (at least 32 random bytes). Keep the private key and dispatch secret out of Git, frontend environment variables, and screenshots. Keep the key pair stable; rotating it requires devices to resubscribe.
 4. In Supabase **Edge Functions → Secrets**, set:
 
-   | Secret | Value |
-   | --- | --- |
-   | `VAPID_PUBLIC_KEY` | Generated public key |
-   | `VAPID_PRIVATE_KEY` | Generated private key |
-   | `VAPID_SUBJECT` | A real maintainer contact, such as `mailto:your-address` |
-   | `PUSH_DISPATCH_SECRET` | The separate random dispatch secret |
-   | `APP_ORIGIN` | `https://atoarkhurst.github.io` (no `/cadence` path) |
-   | `PUSH_ENABLED` | Start with `false`; change to `true` after scheduling |
+   | Secret                 | Value                                                    |
+   | ---------------------- | -------------------------------------------------------- |
+   | `VAPID_PUBLIC_KEY`     | Generated public key                                     |
+   | `VAPID_PRIVATE_KEY`    | Generated private key                                    |
+   | `VAPID_SUBJECT`        | A real maintainer contact, such as `mailto:your-address` |
+   | `PUSH_DISPATCH_SECRET` | The separate random dispatch secret                      |
+   | `APP_ORIGIN`           | `https://atoarkhurst.github.io` (no `/cadence` path)     |
+   | `PUSH_ENABLED`         | Start with `false`; change to `true` after scheduling    |
 
    Supabase supplies `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to the function. Never put the service-role key in a `VITE_` variable. The browser receives only the public VAPID key after signing in.
+
 5. Enable Supabase Cron and pg_net, store the dispatch secret in Supabase Vault named `cadence_push_dispatch_secret`, and schedule the following job **once**. Use the same secret as in step 4. Do not store the literal secret in the cron command. Verify `cadence-encouragement-push` does not already exist before creating it.
 
    ```sql

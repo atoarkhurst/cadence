@@ -13,13 +13,17 @@ export function calculateStreak() {
   try {
     const raw = localStorage.getItem('cadence-streak')
     if (raw) stored = { ...stored, ...JSON.parse(raw) }
-  } catch { /* use defaults */ }
+  } catch {
+    /* use defaults */
+  }
 
   let log = {}
   try {
     const raw = localStorage.getItem('cadence-daily-log')
     if (raw) log = JSON.parse(raw)
-  } catch { /* use empty */ }
+  } catch {
+    /* use empty */
+  }
 
   const today = todayDate()
   const yesterday = yesterdayDate()
