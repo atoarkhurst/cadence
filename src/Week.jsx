@@ -16,6 +16,7 @@ import './Review.css'
 import { isComplete } from './lib/partnership.js'
 import { useEncouragement } from './lib/encouragement-context.js'
 import EncouragementNote from './EncouragementNote.jsx'
+import EncouragementHeart from './EncouragementHeart.jsx'
 
 function Week() {
   const { items: notifications } = useEncouragement()
@@ -409,7 +410,15 @@ function Week() {
                     notification={notifications.find((item) => item.encouragement_id === cheer.id)}
                     author={cheer.author}
                     message={cheer.message}
-                  />
+                  >
+                    <EncouragementHeart
+                      noteId={cheer.id}
+                      hearted={Boolean(
+                        cheer.encouragement_reactions?.some((r) => r.user_id === workspace.user.id),
+                      )}
+                      onChanged={refreshWeek}
+                    />
+                  </EncouragementNote>
                 ))}
               {!cheers.some((cheer) => cheer.author_id === workspace.partner.id) && (
                 <p className="encouragement-hint">
@@ -488,6 +497,13 @@ function Week() {
                       <p>
                         <strong>You</strong>
                         <small>{cheer.message}</small>
+                        {cheer.encouragement_reactions?.some(
+                          (r) => r.user_id === workspace.partner.id,
+                        ) && (
+                          <small className="note-heart-receipt">
+                            ♥ {workspace.partner.display_name} appreciated this
+                          </small>
+                        )}
                       </p>
                     </div>
                   ))}

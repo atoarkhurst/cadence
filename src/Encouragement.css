@@ -156,3 +156,41 @@
     margin-top: 22px;
   }
 }
+.note-heart {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #d9ddd3;
+  border-radius: 999px;
+  background: transparent;
+  color: #53644c;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.note-heart[aria-pressed='true'] {
+  background: #f4e9e6;
+  color: #8c514b;
+  border-color: #e7d0ca;
+}
+.note-heart:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.note-heart:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.note-heart-control {
+  margin-top: 0.7rem;
+}
+.note-heart-control small {
+  display: block;
+  margin-top: 0.4rem;
+}
+.note-heart-receipt {
+  color: #8c514b;
+  margin-top: 0.5rem;
+}

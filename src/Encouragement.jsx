@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useEncouragement } from './lib/encouragement-context.js'
 import EncouragementNote from './EncouragementNote.jsx'
+import EncouragementHeart from './EncouragementHeart.jsx'
 
 export default function Encouragement() {
-  const { items, status, refresh, hasMore, more } = useEncouragement()
+  const { items, status, refresh, hasMore, more, userId } = useEncouragement()
   const requested = new URLSearchParams(window.location.search).get('message')
   const target = items.find((note) => note.id === requested)?.id
   useEffect(() => {
@@ -53,6 +54,15 @@ export default function Encouragement() {
           author={note.profiles?.display_name}
           message={note.encouragements?.message || 'This note is no longer available.'}
         >
+          {note.encouragements && (
+            <EncouragementHeart
+              noteId={note.encouragement_id}
+              hearted={Boolean(
+                note.encouragements.encouragement_reactions?.some((r) => r.user_id === userId),
+              )}
+              onChanged={refresh}
+            />
+          )}
           <div className="note-meta">
             <time dateTime={note.created_at}>
               {new Date(note.created_at).toLocaleString(undefined, {

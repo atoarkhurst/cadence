@@ -99,7 +99,7 @@ export async function loadCurrentWeek(startsOn = null) {
   const partner = profiles.find((profile) => profile.id !== user.id) ?? null
   const { data: encouragements, error: cheerError } = await supabase
     .from('encouragements')
-    .select('*')
+    .select('*, encouragement_reactions(user_id)')
     .eq('week_id', weekId)
     .order('created_at', { ascending: false })
   if (cheerError) throw cheerError
@@ -200,4 +200,9 @@ export async function createEncouragement(weekId, userId, message) {
     .single()
   if (error) throw error
   return data
+}
+
+export async function setEncouragementHeart(noteId, hearted) {
+  const { error } = await supabase.rpc('set_encouragement_heart', { note_id: noteId, hearted })
+  if (error) throw error
 }

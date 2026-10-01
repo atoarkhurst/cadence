@@ -15,6 +15,7 @@ const files = [
   '202610010009_access_hardening.sql',
   '202610010010_progress_corrections.sql',
   '202610010011_creation_limits.sql',
+  '202610010012_encouragement_hearts.sql',
 ]
 const migrations = await Promise.all(
   files.map(async (file) => {
