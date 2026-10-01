@@ -1,8 +1,10 @@
 # Encouragement hearts
 
 A recipient can acknowledge a note from the weekly view or encouragement inbox.
-The sender sees “appreciated this” under the sent note. Tapping again removes the
-heart. Hearts do not send push notifications or change unread markers.
+The recipient sees a quiet heart button below the note; the sender sees a small
+heart beside “You” on the sent note. Tapping again removes the heart. Both icons
+have descriptive labels for assistive technology. Hearts do not send push
+notifications or change unread markers.
 
 ## How it works
 

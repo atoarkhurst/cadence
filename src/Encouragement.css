@@ -159,21 +159,27 @@
 .note-heart {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  width: 44px;
   min-height: 44px;
-  padding: 0.4rem 0.8rem;
-  border: 1px solid #d9ddd3;
-  border-radius: 999px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 12px;
   background: transparent;
-  color: #53644c;
+  color: #767d71;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 24px;
+  line-height: 1;
   cursor: pointer;
 }
+.note-heart:hover {
+  background: #eae6dc;
+}
 .note-heart[aria-pressed='true'] {
-  background: #f4e9e6;
-  color: #8c514b;
-  border-color: #e7d0ca;
+  color: #995e58;
+}
+.note-heart[aria-pressed='true']:hover {
+  background: #ede4df;
 }
 .note-heart:focus-visible {
   outline: 2px solid currentColor;
@@ -184,13 +190,17 @@
   cursor: wait;
 }
 .note-heart-control {
-  margin-top: 0.7rem;
+  margin-top: 0.25rem;
+  margin-left: -0.35rem;
 }
 .note-heart-control small {
   display: block;
   margin-top: 0.4rem;
 }
 .note-heart-receipt {
-  color: #8c514b;
-  margin-top: 0.5rem;
+  display: inline-block;
+  margin-left: 0.5rem;
+  color: #995e58;
+  font-size: 14px;
+  line-height: 1;
 }

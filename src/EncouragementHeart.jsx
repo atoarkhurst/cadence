@@ -27,10 +27,10 @@ export default function EncouragementHeart({ noteId, hearted, onChanged }) {
         aria-pressed={hearted}
         disabled={busy}
         aria-label={hearted ? 'Remove heart' : 'Send a heart'}
+        title={hearted ? 'Remove your heart' : 'Heart this note'}
         onClick={acknowledge}
       >
         <span aria-hidden="true">{hearted ? '♥' : '♡'}</span>
-        {busy ? 'Saving…' : hearted ? 'Appreciated' : 'Send a heart'}
       </button>
       {error && <small role="status">{error}</small>}
     </div>

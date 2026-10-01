@@ -496,14 +496,19 @@ function Week() {
                       </span>
                       <p>
                         <strong>You</strong>
-                        <small>{cheer.message}</small>
                         {cheer.encouragement_reactions?.some(
                           (r) => r.user_id === workspace.partner.id,
                         ) && (
-                          <small className="note-heart-receipt">
-                            ♥ {workspace.partner.display_name} appreciated this
-                          </small>
+                          <span
+                            className="note-heart-receipt"
+                            role="img"
+                            aria-label={`${workspace.partner.display_name} hearted this note`}
+                            title={`${workspace.partner.display_name} hearted this note`}
+                          >
+                            ♥
+                          </span>
                         )}
+                        <small>{cheer.message}</small>
                       </p>
                     </div>
                   ))}
