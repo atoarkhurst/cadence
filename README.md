@@ -1,88 +1,76 @@
 # Cadence
 
-Cadence is a lightweight accountability app for two friends who want to make each week count.
+Cadence is a private weekly accountability ritual for two people: choose a few intentions, track progress, send encouragement, and reflect together.
 
-The idea grew out of a weekly ritual: meet on Saturday, choose three or four realistic intentions, encourage each other during the week, and meet again to reflect on how it went. Cadence turns that shared note into a focused product built around planning, visible progress, and encouragement.
+## Architecture
 
-## What the prototype does
+- **React + React Router** render Today, This week, reviews, account settings, and the encouragement inbox.
+- **Supabase Auth** identifies users. The browser uses a publishable key; it is not an administrator credential.
+- **PostgreSQL row-level security** controls which records an account can read or change, even if someone bypasses the UI.
+- **Database functions** handle transactions: first-use setup, invitations, progress corrections, review rollover, and unlinking.
+- **One Edge Function + a scheduled queue** deliver optional generic Web Push notifications.
+- **GitHub Pages** hosts the compiled frontend. It does not host the database or send authentication email.
 
-- Set a short list of weekly tasks and measurable goals
-- Track daily habits
-- See daily completion streaks
-- Create a read-only snapshot link to share progress
-- Save progress in the browser between visits
+No private goals or messages are cached for offline use. Shared snapshot URLs are a separate public export: anyone with a link can read it, and it cannot be revoked.
 
-The current version is intentionally local-first. It is useful for testing the core workflow before adding accounts, a database, or real-time partner updates.
+## Local setup
 
-## Product direction
+Use Node 22 and npm. Copy `.env.example` to `.env.local` and supply a development Supabase project's URL and publishable key. Never use a service-role key in a `VITE_` variable.
 
-The core loop is:
-
-1. **Plan together** — choose a small number of intentions for the week.
-2. **Make progress visible** — update goals without turning the app into a complicated project manager.
-3. **Encourage each other** — let a partner react or leave a short note.
-4. **Reflect and reset** — review the week together, celebrate wins, and carry forward what matters.
-
-The next meaningful product milestone is a private shared week for two people. That will require sign-in, persistent cloud data, partner invitations, and lightweight encouragement. Those capabilities should be added only after the planning and progress experience feels simple and useful.
-
-## How the React app fits together
-
-- `src/main.jsx` starts React and defines the app's routes.
-- `src/Root.jsx` is the shared page layout and navigation.
-- `src/App.jsx` renders the daily habit view and manages its state.
-- `src/Week.jsx` renders weekly tasks and goals and manages their state.
-- `src/pages/ShareView.jsx` renders a read-only progress snapshot.
-- `src/utils/` contains focused logic that does not need to render anything.
-- CSS files live beside the screens they style.
-
-React components turn state into interface. Event handlers update that state, and React renders the new result. `useEffect` synchronizes selected state with browser storage so it survives a refresh. React Router chooses which screen to render from the URL.
-
-## Run it locally
-
-You will need a recent version of Node.js.
-
-```bash
-npm install
+```sh
+npm ci
 npm run dev
 ```
 
-Then open the local address shown in the terminal.
+The app uses `/cadence/` as its base path. The development database needs all migrations in filename order. Initial migrations are not generally rerunnable; keep a migration ledger and apply only pending files. Do not test destructive behavior against real accounts.
 
-Useful checks:
+## Checks and releases
 
-```bash
-npm run lint
-npm run build
+```sh
+npm run format
+npm run check
+npm audit
 ```
 
-`lint` catches suspicious code and consistency problems. `build` creates the optimized production version and confirms that the app can be packaged successfully.
+`check` runs lint, formatting checks, logic tests, isolated database tests, React interaction tests, and a production build. GitHub Actions runs these on pushes and pull requests. Dependency audit results are warnings to investigate, not proof that every reported issue affects this deployment.
 
-## A practical learning path
+`npm run deploy` checks the project, builds it, and publishes to GitHub Pages. It does **not** apply database migrations or deploy the push function. Apply compatible database changes before publishing a frontend that requires them. See [release safety](docs/release-safety.md).
 
-Use the existing features as small React lessons:
+## Find your way around
 
-1. Change a label or default goal to see how JSX becomes the interface.
-2. Trace one checkbox from its click handler to its state update and rerender.
-3. Follow the weekly data from `useState` into `localStorage` through `useEffect`.
-4. Add an empty state or validation message as a small independent feature.
-5. Extract one repeated interface pattern into a reusable component.
-6. Add automated tests around date, streak, and sharing utilities.
-7. Only then connect the proven workflow to authentication and a database.
+| Location                                 | Responsibility                                                     |
+| ---------------------------------------- | ------------------------------------------------------------------ |
+| `src/main.jsx`, `src/Root.jsx`           | Routes and shared navigation                                       |
+| `src/App.jsx`, `src/Week.jsx`            | Daily and weekly screen composition                                |
+| `src/hooks/useWeek.js`                   | Shared loading, refresh, save lifecycle, stale-response protection |
+| `src/lib/cadence.js`                     | Database reads and domain actions                                  |
+| `src/Review.jsx`                         | Weekly reflection and next-week planning                           |
+| `src/Auth.jsx`, account components       | Sign-in, recovery, profile, partner, notification settings         |
+| `src/EncouragementProvider.jsx`          | Inbox loading, unread state, account isolation                     |
+| `supabase/migrations/`                   | Versioned schema, permissions, transactional functions             |
+| `supabase/functions/encouragement-push/` | Server-only delivery                                               |
+| `scripts/test-*.mjs`                     | Isolated database and service-worker regression tests              |
+| `src/**/*.ui.test.jsx`                   | React behavior tests, not real email/browser delivery tests        |
 
-## Near-term roadmap
+## Learn by tracing one goal update
 
-- Refine the weekly planning flow around three or four intentions
-- Add a Saturday review and rollover experience
-- Model a private partnership and shared weekly plan
-- Add short encouragement reactions or notes
-- Add authentication and persistent storage
-- Add tests and deploy a small private beta
+1. The user clicks a checkbox in `App.jsx` or `Week.jsx`.
+2. `useWeek.saveChange` marks the screen busy and invalidates older reads.
+3. `setProgress` calls `set_intention_progress` with the intended total, last-seen total, and a unique request ID.
+4. PostgreSQL verifies ownership and membership, locks the goal, checks for concurrent edits, and appends a correction.
+5. The hook reloads server truth. Both screens read the same original entries plus corrections.
 
-## Tech stack
+This separation matters: React displays state; the data module describes requests; PostgreSQL enforces authorization and consistency. Hidden buttons are not a security boundary.
 
-- React for the interface and state-driven components
-- React Router for navigation
-- Vite for local development and production builds
-- Browser storage for prototype persistence
+## Working agreements
 
-This stack is deliberately small. It keeps the product easy to understand today and leaves room to add a hosted backend when the shared experience is ready.
+- Keep new JSX and CSS readable; run the formatter rather than compressing code.
+- Put shared request lifecycle logic in hooks, not copied into multiple screens.
+- Test the failure and denial cases, not only successful actions.
+- Never edit a migration that has already been applied. Add a new one.
+- Preserve IDs/history when changing data models; do not reset production to make a test pass.
+- Add a short explanation for non-obvious business rules.
+- Keep changes small: formatting, behavior, and database deployment should be independently reviewable.
+- Introduce TypeScript incrementally if it helps; a rewrite is not required.
+
+See [security and data rules](docs/security-and-data.md) and [notification operations](docs/encouragement-notifications.md).

@@ -7,9 +7,14 @@
     "dev": "vite",
     "build": "vite build && node scripts/prepare-pages-build.mjs",
     "lint": "eslint .",
-    "test": "node --test src/lib/*.test.js && node scripts/test-weekly-review.mjs && node scripts/test-week-schedule.mjs && node scripts/test-encouragement.mjs && node scripts/test-push-worker.mjs",
+    "test": "node --test src/lib/*.test.js && node scripts/test-weekly-review.mjs && node scripts/test-week-schedule.mjs && node scripts/test-encouragement.mjs && node scripts/test-push-worker.mjs && node scripts/test-hardening.mjs && npm run test:ui",
+    "test:ui": "vitest run --config vitest.config.js",
+    "format": "prettier --write src scripts docs README.md *.json *.js .github/workflows/*.yml",
+    "format:check": "prettier --check src scripts docs README.md *.json *.js .github/workflows/*.yml",
+    "check": "npm run lint && npm run format:check && npm run secrets:check && npm test && npm run build",
+    "secrets:check": "node scripts/check-secrets.mjs",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "predeploy": "npm run check",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
@@ -21,6 +26,7 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
     "@eslint/js": "^9.39.4",
+    "@testing-library/react": "^16.3.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
@@ -29,6 +35,9 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "gh-pages": "^6.3.0",
     "globals": "^17.4.0",
-    "vite": "^8.0.1"
+    "jsdom": "^29.1.1",
+    "prettier": "^3.9.9",
+    "vite": "^8.0.1",
+    "vitest": "^5.0.3"
   }
 }

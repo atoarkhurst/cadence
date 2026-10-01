@@ -10,7 +10,7 @@ function ShareView() {
   if (!snapshot) {
     return (
       <div className="share-container">
-        <p className="share-error">This link is invalid or has expired.</p>
+        <p className="share-error">This snapshot link is invalid or incomplete.</p>
       </div>
     )
   }
@@ -72,7 +72,9 @@ function ShareView() {
                   <li key={goal.id} className={`habit-item ${met ? 'done' : ''}`}>
                     <div className="goal-info">
                       <span className="habit-name">{goal.name}</span>
-                      <span className="goal-count">{goal.count} / {goal.target}</span>
+                      <span className="goal-count">
+                        {goal.count} / {goal.target}
+                      </span>
                     </div>
                   </li>
                 )
