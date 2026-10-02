@@ -17,8 +17,8 @@ export default function Encouragement() {
   return (
     <main className="encouragement-shell">
       <p className="eyebrow">In your corner</p>
-      <h1>Encouragement for you.</h1>
-      <p className="encouragement-intro">A place for the notes that keep you going.</p>
+      <h1>Notes for you</h1>
+      <p className="encouragement-intro">The little things your partner said along the way.</p>
       {status === 'loading' && <p role="status">Loading your notes…</p>}
       {status === 'signed-out' && (
         <p>

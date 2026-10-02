@@ -12,6 +12,7 @@ import Review from './Review.jsx'
 import Encouragement from './Encouragement.jsx'
 import './Mobile.css'
 import './WeekStudio.css'
+import './CadenceTheme.css'
 
 const routerBase = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
 

@@ -1,7 +1,8 @@
 # Cadence design direction: the shared week
 
-Status: refined cobalt shared-week direction selected. Implementation is in the weekly
-screen, pending live publication. Database, goal persistence, and history are unchanged.
+Status: refined cobalt direction implemented across the weekly planner, Today,
+check-in, account, sign-in, invitation, encouragement inbox, public snapshot,
+and phone navigation. Database, goal persistence, and history are unchanged.
 
 The first pass removes enclosing cards and decorative headings, brings goals up
 the page, and groups review, planning, history, and sharing under Week options.
@@ -34,7 +35,7 @@ The first screen answers three questions in order:
 
 These are behavior and hierarchy references, not visual templates to copy.
 
-## Diagnosis of the current weekly page
+## Diagnosis that led to the redesign
 
 - A large “Find your rhythm” headline, signature graphic, share button, and
   several links precede the goals. This pushes the weekly promises down.
@@ -44,7 +45,7 @@ These are behavior and hierarchy references, not visual templates to copy.
 - The two columns imply two equal dashboards. The user's goals should lead, while
   the partner's activity should be close enough to glance at and respond to.
 
-## Proposed screen hierarchy
+## Screen hierarchy
 
 Desktop (roughly 1024px wide):
 
@@ -70,11 +71,13 @@ or scrolling past introductory text. Place review and history in a quieter area.
 
 ## Visual language
 
-- One calm type family with three useful levels: page title, section title, body.
-  Use weight and spacing before using color to indicate hierarchy.
-- Warm near-white canvas; white or transparent primary content area. One deep
-  green accent for actions and progress. Reserve a second warm accent for personal
-  encouragement, used sparingly.
+- Use an editorial serif for the page-level moment in time, with a clean sans
+  for actions and goal rows. Use weight and spacing before color for hierarchy.
+- Porcelain canvas (`#fcfcfa`), ink (`#17243b`), and one cobalt accent
+  (`#294ecb`) for actions and progress. Muted copy is `#637086`; quiet
+  dividers are `#dce1e8`. The tokens for non-week screens live in
+  `src/CadenceTheme.css`; the weekly layout owns its scoped rules in
+  `src/WeekStudio.css`.
 - Prefer rows and spacing over a border around every item. Use one major panel
   or shared surface, not nested cards.
 - One small progress treatment repeated consistently. A count such as `2 / 4`
@@ -96,13 +99,13 @@ or scrolling past introductory text. Place review and history in a quieter area.
   elsewhere, but should not crowd the default weekly view.
 - Keep past weeks read-only and preserve the current data model and history.
 
-## Prototype checks before implementation
+## Usability checks
 
 Show desktop and phone mockups to two people, including Joey. Ask them to point to
 their goals, update a repeatable goal, find Joey's progress, and send a note. Do
 not coach them. Observe whether the four actions are immediately discoverable and
 whether the screen feels supportive rather than pressuring. Iterate the mockup
-before changing production code.
+when iterating on the production design.
 
 ## Source references
 

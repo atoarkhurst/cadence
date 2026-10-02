@@ -58,7 +58,6 @@ function App() {
     tasks.filter((item) => item.done).length +
     goals.filter((item) => item.count >= item.target).length
   const total = tasks.length + goals.length
-  const percent = total ? Math.round((completed / total) * 100) : 0
   const name = workspace.displayName || 'there'
   const greeting =
     new Date().getHours() < 12
@@ -81,12 +80,7 @@ function App() {
           <h1>
             {greeting}, {name}.
           </h1>
-          <p>
-            {weekLabel(workspace.startsOn)} · {completed} of {total} complete
-          </p>
-        </div>
-        <div className="day-progress" style={{ '--progress': `${percent * 3.6}deg` }}>
-          <span>{percent}%</span>
+          <p>{weekLabel(workspace.startsOn)} · One plan, a little progress each day.</p>
         </div>
       </header>
       {workspace.previousStartsOn && (
@@ -103,8 +97,8 @@ function App() {
         <section className="today-card">
           <div className="card-heading">
             <div>
-              <span>Your week, today</span>
-              <h2>Your intentions</h2>
+              <span>Your intentions</span>
+              <h2>Keep going.</h2>
             </div>
             <strong>
               {completed} of {total}
@@ -183,29 +177,17 @@ function App() {
               Add
             </button>
           </form>
-          <p className="sync-note">Changes here are reflected on your weekly plan.</p>
+          <a className="daily-full-week" href={appPath('/week')}>
+            See the full week →
+          </a>
         </section>
         <aside className="daily-side">
-          <section className="streak-card">
-            <span className="side-label">This week</span>
-            <div className="streak-value">
-              {percent}
-              <small>% complete</small>
-            </div>
-            <p>
-              Your progress is shared across Daily and Weekly, so there’s only one list to maintain.
-            </p>
-            <a className="text-link" href={appPath('/week')}>
-              Review the full week →
-            </a>
-          </section>
           <section className="partner-note">
+            <span className="side-label">In your corner</span>
             <div className="partner-note-top">
               <div>
                 <strong>
-                  {workspace.partner
-                    ? `${workspace.partner.display_name} is in your corner`
-                    : 'Better with a partner'}
+                  {workspace.partner ? workspace.partner.display_name : 'Room for your person'}
                 </strong>
                 <small>
                   {workspace.partner

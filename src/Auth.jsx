@@ -186,9 +186,9 @@ export default function Auth() {
       <main className="account-shell">
         <header className="account-header">
           <div>
-            <p className="account-eyebrow">Make it yours</p>
-            <h1>Your account.</h1>
-            <p>A few details for a week that works for you.</p>
+            <p className="account-eyebrow">Settings</p>
+            <h1>Your account</h1>
+            <p>Manage your profile, shared week, and notifications.</p>
           </div>
           <a
             className="account-week-link"

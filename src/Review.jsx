@@ -195,14 +195,8 @@ export default function Review() {
       </a>
       <header className="review-header">
         <p className="eyebrow">{weekLabel(start)}</p>
-        <h1>
-          A little reflection.
-          <br />A fresh start.
-        </h1>
-        <p>
-          Ten minutes together. Notice what worked, make room for what didn’t, and choose what comes
-          next.
-        </p>
+        <h1>Weekly check-in</h1>
+        <p>Look back together, then choose what you want to carry forward.</p>
       </header>
       <div className="review-history">
         <label htmlFor="review-week">Your shared history</label>

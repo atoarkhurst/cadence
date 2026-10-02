@@ -1,0 +1,839 @@
+/* The shared visual language for the rest of Cadence. WeekStudio.css owns the
+   weekly planner; these styles keep its colors, typography, and spacing in sync. */
+:root {
+  --cadence-ink: #17243b;
+  --cadence-blue: #294ecb;
+  --cadence-blue-soft: #eef2fc;
+  --cadence-muted: #637086;
+  --cadence-line: #dce1e8;
+  --cadence-paper: #fcfcfa;
+  --cadence-serif: Georgia, 'Times New Roman', serif;
+  --text-h: var(--cadence-ink);
+  --text: var(--cadence-muted);
+  --bg: var(--cadence-paper);
+  --border: var(--cadence-line);
+  --accent: var(--cadence-blue);
+  --accent-bg: var(--cadence-blue-soft);
+  color-scheme: light;
+}
+body {
+  background: var(--cadence-paper);
+  color: var(--cadence-ink);
+}
+#root {
+  width: 100%;
+  border: 0;
+  text-align: left;
+}
+:focus-visible,
+.account-shell :focus-visible,
+.signin-shell :focus-visible {
+  outline: 2px solid var(--cadence-blue);
+  outline-offset: 3px;
+}
+
+/* Quiet navigation lets the current page and the weekly planner lead. */
+.main-nav {
+  width: min(1040px, calc(100% - 48px));
+  height: 72px;
+  border-bottom: 1px solid var(--cadence-line);
+}
+.wordmark {
+  color: var(--cadence-ink);
+}
+.nav-tabs {
+  gap: 2px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.nav-link {
+  color: var(--cadence-muted);
+  padding: 10px 13px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.nav-link:hover,
+.nav-link.active {
+  color: var(--cadence-blue);
+  background: var(--cadence-blue-soft);
+  box-shadow: none;
+}
+.encouragement-link {
+  color: var(--cadence-ink);
+}
+.encouragement-link:hover,
+.encouragement-link.active {
+  color: var(--cadence-blue);
+  background: var(--cadence-blue-soft);
+}
+.encouragement-badge {
+  background: var(--cadence-blue);
+}
+
+/* Today uses the exact same intentions as This week, without a second summary
+   card between the person and their next action. */
+.daily-shell {
+  width: min(1040px, calc(100% - 48px));
+  padding: 28px 0 80px;
+  color: var(--cadence-ink);
+}
+.daily-header {
+  align-items: end;
+  margin: 0 0 30px;
+  padding: 0 0 24px;
+  border-bottom: 2px solid var(--cadence-ink);
+}
+.daily-date,
+.side-label,
+.card-heading span {
+  color: var(--cadence-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+.daily-header h1 {
+  color: var(--cadence-ink);
+  font: 42px/1.15 var(--cadence-serif);
+  letter-spacing: -0.04em;
+  margin: 12px 0 8px;
+}
+.daily-header > div > p:last-child {
+  color: var(--cadence-muted);
+  font-size: 13px;
+}
+.daily-review-link,
+.daily-full-week {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--cadence-blue);
+  font-size: 13px;
+  text-decoration: none;
+}
+.daily-review-link {
+  margin: 0 0 12px;
+}
+.daily-grid {
+  grid-template-columns: minmax(0, 1.5fr) minmax(250px, 0.8fr);
+  gap: 48px;
+  align-items: start;
+}
+.today-card,
+.partner-note {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
+  min-width: 0;
+}
+.card-heading {
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+.card-heading h2 {
+  color: var(--cadence-ink);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  margin-top: 5px;
+}
+.card-heading > strong {
+  padding: 0;
+  border-radius: 0;
+  color: var(--cadence-muted);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.daily-empty {
+  padding: 22px 0;
+  border-top: 1px solid var(--cadence-line);
+  border-bottom: 1px solid var(--cadence-line);
+  border-radius: 0;
+  background: transparent;
+}
+.daily-empty h3 {
+  font-size: 15px;
+}
+.daily-empty p {
+  font-size: 13px;
+  color: var(--cadence-muted);
+}
+.habit-list,
+.daily-rhythms {
+  gap: 0;
+  margin: 0;
+}
+.habit-item,
+.daily-rhythm,
+.habit-item.done,
+.daily-rhythm.done {
+  min-height: 72px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--cadence-line);
+  border-radius: 0;
+  background: transparent;
+}
+.habit-item label {
+  min-height: 44px;
+}
+.habit-item input {
+  width: 22px;
+  height: 22px;
+  border-color: #8e9bb1;
+}
+.habit-item input:checked {
+  background-color: var(--cadence-blue);
+  border-color: var(--cadence-blue);
+}
+.habit-name,
+.daily-rhythm > div {
+  color: var(--cadence-ink);
+  font-size: 15px;
+  line-height: 1.4;
+}
+.habit-name small,
+.daily-rhythm small {
+  color: var(--cadence-muted);
+  font-size: 11px;
+}
+.habit-item.done .habit-name {
+  color: var(--cadence-muted);
+  text-decoration: line-through;
+  text-decoration-color: #a4aec0;
+}
+.habit-item.done .habit-name small {
+  text-decoration: none;
+}
+.daily-rhythm button,
+.daily-rhythm .progress-add {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 4px;
+  color: var(--cadence-blue);
+  background: transparent;
+  font-size: 14px;
+}
+.daily-rhythm .progress-add {
+  background: var(--cadence-blue-soft);
+  font-weight: 600;
+}
+.add-habit-form {
+  margin-top: 20px;
+}
+.add-habit-input {
+  min-height: 48px;
+  border-color: var(--cadence-line);
+  border-radius: 4px;
+  background: var(--cadence-paper);
+  color: var(--cadence-ink);
+  font-size: 15px;
+}
+.add-habit-btn {
+  min-width: 72px;
+  border-radius: 4px;
+  background: var(--cadence-blue);
+  color: white;
+  font-size: 13px;
+}
+.daily-full-week {
+  margin-top: 10px;
+}
+.partner-note {
+  border-left: 1px solid var(--cadence-line);
+  padding-left: 32px;
+}
+.partner-note-top {
+  margin-top: 15px;
+}
+.partner-note-top strong {
+  color: var(--cadence-ink);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.partner-note-top small,
+.partner-note > p {
+  color: var(--cadence-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.partner-note > p {
+  margin: 18px 0 8px;
+}
+.partner-note > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--cadence-blue);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Settings are sections in a calm workspace, not a stack of forms in a card. */
+.account-shell {
+  width: min(1040px, calc(100% - 48px));
+  padding-top: 28px;
+  color: var(--cadence-ink);
+}
+.account-header {
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--cadence-ink);
+}
+.account-eyebrow,
+.signin-card .auth-kicker {
+  color: var(--cadence-muted);
+}
+.account-header h1 {
+  font: 42px/1.15 var(--cadence-serif);
+  letter-spacing: -0.04em;
+  margin: 10px 0 7px;
+}
+.account-header p:not(.account-eyebrow),
+.account-identity div > span,
+.account-content p,
+.account-content .account-field-hint,
+.account-footer {
+  color: var(--cadence-muted);
+}
+.account-week-link {
+  color: var(--cadence-blue);
+}
+.account-layout {
+  grid-template-columns: 225px minmax(0, 1fr);
+  gap: 48px;
+}
+.account-identity {
+  padding: 0 0 22px;
+}
+.account-monogram {
+  background: var(--cadence-blue-soft);
+  color: var(--cadence-blue);
+  border-radius: 50%;
+  font-size: 22px;
+}
+.account-identity strong {
+  color: var(--cadence-ink);
+}
+.account-nav {
+  gap: 0;
+  border-top: 1px solid var(--cadence-line);
+}
+.account-nav button,
+.account-nav button[aria-current='page'] {
+  border: 0;
+  border-bottom: 1px solid var(--cadence-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--cadence-muted);
+  padding: 16px 8px;
+}
+.account-nav button:hover {
+  background: var(--cadence-blue-soft);
+}
+.account-nav button[aria-current='page'] {
+  color: var(--cadence-blue);
+  box-shadow: inset 2px 0 var(--cadence-blue);
+}
+.account-nav button > span {
+  font-size: 13px;
+}
+.account-nav small {
+  color: var(--cadence-muted);
+}
+.account-signout {
+  border-top-color: var(--cadence-line);
+  color: var(--cadence-muted);
+}
+.account-content.auth-card {
+  width: 100%;
+  min-height: 0;
+  padding: 0 0 36px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.account-content h2 {
+  color: var(--cadence-ink);
+}
+.account-content .account-eyebrow {
+  color: var(--cadence-muted);
+  margin-bottom: 22px;
+}
+.account-content .partner-settings + .profile-settings {
+  border-top-color: var(--cadence-line);
+}
+.account-content label,
+.signin-card label {
+  color: var(--cadence-ink);
+}
+.account-content input,
+.account-content select,
+.signin-card input,
+.auth-card select,
+.auth-card input {
+  border-color: var(--cadence-line);
+  border-radius: 4px;
+  background: var(--cadence-paper);
+  color: var(--cadence-ink);
+}
+.account-content input:focus,
+.account-content select:focus,
+.signin-card input:focus,
+.auth-card input:focus {
+  border-color: var(--cadence-blue);
+  box-shadow: 0 0 0 3px var(--cadence-blue-soft);
+}
+.account-content .auth-primary,
+.signin-card .auth-primary,
+.auth-primary {
+  min-height: 46px;
+  border-radius: 4px;
+  background: var(--cadence-blue);
+  color: white;
+}
+.account-content .auth-secondary,
+.auth-text-button,
+.signin-alternative .auth-secondary,
+.partner-settings a {
+  color: var(--cadence-blue);
+}
+.account-content .notification-settings .auth-secondary {
+  border-color: var(--cadence-line);
+  border-radius: 4px;
+  background: var(--cadence-blue-soft);
+}
+.account-content .account-feedback,
+.signin-card .account-feedback,
+.auth-message {
+  background: var(--cadence-blue-soft);
+  color: var(--cadence-ink);
+}
+.account-content .account-error,
+.signin-card .account-error {
+  background: #fbefea;
+  color: #943f35;
+}
+.signin-shell {
+  padding-top: clamp(42px, 9vh, 96px);
+}
+.auth-card,
+.signin-card.auth-card {
+  border: 1px solid var(--cadence-line);
+  border-radius: 6px;
+  background: var(--cadence-paper);
+  box-shadow: none;
+}
+.auth-card h1,
+.signin-card h1 {
+  color: var(--cadence-ink);
+  font: 36px/1.15 var(--cadence-serif);
+  letter-spacing: -0.04em;
+}
+.auth-card p,
+.signin-card p,
+.signin-footnote {
+  color: var(--cadence-muted);
+}
+.signin-alternative {
+  border-top-color: var(--cadence-line);
+}
+.signin-card .signin-email {
+  color: var(--cadence-ink);
+}
+
+/* Check-in and inbox follow the same editorial rhythm as the shared week. */
+.review-shell,
+.encouragement-shell {
+  width: min(1040px, calc(100% - 48px));
+  color: var(--cadence-ink);
+}
+.review-shell {
+  padding: 28px 0 80px;
+}
+.review-back,
+.encouragement-shell a,
+.note-read,
+.review-count {
+  color: var(--cadence-blue) !important;
+}
+.review-header {
+  max-width: none;
+  margin: 20px 0 24px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--cadence-ink);
+}
+.review-header h1,
+.encouragement-shell h1 {
+  color: var(--cadence-ink);
+  font: 42px/1.15 var(--cadence-serif);
+  letter-spacing: -0.04em;
+  margin: 10px 0;
+}
+.review-header > p:last-child,
+.encouragement-intro,
+.encouragement-empty p {
+  color: var(--cadence-muted);
+  font-size: 14px;
+}
+.review-history {
+  margin-bottom: 24px;
+}
+.review-history label,
+.review-form > label {
+  color: var(--cadence-ink);
+}
+.review-shell select,
+.review-shell input:not([type='checkbox']),
+.review-shell textarea {
+  border-color: var(--cadence-line);
+  border-radius: 4px;
+  background: var(--cadence-paper);
+  color: var(--cadence-ink);
+}
+.review-grid {
+  gap: 40px;
+}
+.review-card,
+.review-saved {
+  margin-bottom: 24px;
+  padding: 0 0 20px;
+  border: 0;
+  border-bottom: 1px solid var(--cadence-line);
+  border-radius: 0;
+  background: transparent;
+}
+.review-card h2,
+.review-card h3 {
+  color: var(--cadence-ink);
+}
+.review-card p,
+.review-goals small {
+  color: var(--cadence-muted);
+}
+.review-goals li {
+  border-top-color: var(--cadence-line);
+}
+.review-check {
+  color: var(--cadence-muted);
+  background: var(--cadence-blue-soft);
+}
+.review-check.complete {
+  color: var(--cadence-blue);
+  background: var(--cadence-blue-soft);
+}
+.review-steps {
+  border-bottom: 1px solid var(--cadence-line);
+  padding-bottom: 20px;
+}
+.review-steps li {
+  color: var(--cadence-muted);
+}
+.review-steps [aria-current] {
+  color: var(--cadence-blue);
+}
+.review-steps [aria-current] span {
+  background: var(--cadence-blue-soft);
+}
+.review-primary {
+  border-radius: 4px;
+  background: var(--cadence-blue);
+  color: white;
+}
+.review-secondary {
+  border-radius: 4px;
+  background: var(--cadence-blue-soft);
+  color: var(--cadence-blue);
+}
+.carry-list label {
+  padding: 14px 0;
+  border: 0;
+  border-bottom: 1px solid var(--cadence-line);
+  border-radius: 0;
+}
+.carry-list input {
+  accent-color: var(--cadence-blue);
+}
+.week-notice,
+.install-instructions {
+  background: var(--cadence-blue-soft);
+  border-radius: 4px;
+}
+.encouragement-shell {
+  max-width: 720px;
+  margin: 28px auto 70px;
+}
+.encouragement-shell > .eyebrow {
+  color: var(--cadence-muted);
+}
+.encouragement-shell > h1 {
+  margin-bottom: 10px;
+}
+.encouragement-intro {
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--cadence-ink);
+}
+.encouragement-empty {
+  padding: 26px 0;
+  border: 0;
+  border-bottom: 1px solid var(--cadence-line);
+  border-radius: 0;
+  background: transparent;
+}
+.cheer-card.received-note {
+  gap: 0;
+  padding: 16px 0 18px 18px;
+  margin-top: 8px;
+  border: 0;
+  border-bottom: 1px solid var(--cadence-line);
+  border-left: 2px solid var(--cadence-blue);
+  border-radius: 0;
+  background: transparent;
+}
+.cheer-card.received-note .avatar {
+  display: none;
+}
+.cheer-card.unread-note {
+  background: var(--cadence-blue-soft);
+}
+.note-content > strong,
+.new-note-label,
+.note-read {
+  color: var(--cadence-blue);
+}
+.note-content > p {
+  color: var(--cadence-ink);
+  font: 19px/1.5 var(--cadence-serif);
+}
+.note-meta,
+.notification-settings small {
+  color: var(--cadence-muted);
+}
+.notification-settings {
+  border-top-color: var(--cadence-line);
+}
+.note-heart,
+.note-heart[aria-pressed='true'],
+.note-heart-receipt {
+  color: var(--cadence-blue);
+}
+.note-heart:hover,
+.note-heart[aria-pressed='true']:hover {
+  background: var(--cadence-blue-soft);
+}
+
+/* The public read-only snapshot should look related to the product, too. */
+.share-container {
+  max-width: 720px;
+  padding-top: 60px;
+  color: var(--cadence-ink);
+}
+.share-container .tracker > .date {
+  color: var(--cadence-muted);
+}
+.share-container .tracker > h1 {
+  color: var(--cadence-ink);
+  font: 42px/1.15 var(--cadence-serif);
+  letter-spacing: -0.04em;
+}
+.share-container .week-section {
+  margin-top: 30px;
+}
+.share-container .habit-item,
+.share-container .habit-item.done {
+  padding: 12px 0;
+}
+.share-footer {
+  border-top-color: var(--cadence-line);
+  color: var(--cadence-muted);
+}
+.share-footer a {
+  color: var(--cadence-blue);
+}
+
+@media (max-width: 760px) {
+  .daily-grid,
+  .review-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .partner-note {
+    border-left: 0;
+    border-top: 1px solid var(--cadence-line);
+    padding: 24px 0 0;
+  }
+  .account-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .account-sidebar {
+    display: contents;
+  }
+  .account-identity {
+    display: none;
+  }
+  .account-nav {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    border-top: 0;
+    border-bottom: 1px solid var(--cadence-line);
+    scrollbar-width: thin;
+  }
+  .account-nav button,
+  .account-nav button[aria-current='page'] {
+    flex: 0 0 auto;
+    min-height: 48px;
+    padding: 12px 14px;
+    border-bottom: 0;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .account-nav button[aria-current='page'] {
+    box-shadow: inset 0 -2px var(--cadence-blue);
+  }
+  .account-content.auth-card {
+    padding: 0 0 28px;
+  }
+  .account-signout {
+    grid-row: 3;
+  }
+  .account-footer {
+    margin: 12px 0;
+  }
+}
+@media (max-width: 650px) {
+  .main-nav {
+    width: calc(100% - 32px);
+    height: 58px;
+    border-bottom: 1px solid var(--cadence-line);
+  }
+  .nav-tabs {
+    gap: 0;
+    padding: 5px max(12px, env(safe-area-inset-right)) calc(5px + env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+    border-top: 1px solid var(--cadence-line);
+    background: rgba(252, 252, 250, 0.97);
+  }
+  .nav-link {
+    min-height: 58px;
+    gap: 4px;
+    padding: 6px;
+    color: var(--cadence-muted);
+    border-radius: 4px;
+    font-size: 11px;
+  }
+  .nav-link.active {
+    color: var(--cadence-blue);
+    background: var(--cadence-blue-soft);
+  }
+  .daily-shell,
+  .account-shell,
+  .review-shell,
+  .encouragement-shell {
+    width: calc(100% - 32px);
+    padding-top: 22px;
+  }
+  .daily-header,
+  .account-header,
+  .review-header {
+    padding-bottom: 18px;
+    margin-bottom: 20px;
+  }
+  .daily-header h1,
+  .account-header h1,
+  .review-header h1,
+  .encouragement-shell h1 {
+    font-size: 32px;
+    line-height: 1.17;
+  }
+  .daily-grid {
+    gap: 24px;
+  }
+  .card-heading h2 {
+    font-size: 22px;
+  }
+  .card-heading > strong {
+    padding: 0;
+  }
+  .habit-item,
+  .daily-rhythm {
+    min-height: 68px;
+    padding: 8px 0;
+    box-shadow: none;
+  }
+  .habit-item label {
+    padding: 0;
+  }
+  .habit-name,
+  .daily-rhythm > div {
+    font-size: 15px;
+  }
+  .daily-rhythm button,
+  .daily-rhythm .progress-add {
+    flex: 0 0 44px;
+  }
+  .add-habit-form {
+    display: flex;
+  }
+  .add-habit-btn {
+    min-width: 62px;
+  }
+  .partner-note {
+    padding-top: 22px;
+  }
+  .account-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .account-header p:not(.account-eyebrow) {
+    max-width: none;
+  }
+  .account-week-link {
+    padding: 0;
+  }
+  .review-card {
+    padding: 0 0 18px;
+    box-shadow: none;
+  }
+  .review-steps {
+    gap: 6px;
+  }
+  .review-steps li {
+    font-size: 11px;
+  }
+  .encouragement-shell {
+    margin: 22px auto 60px;
+  }
+  .auth-shell {
+    width: calc(100% - 32px);
+    padding: 28px 0;
+  }
+  .auth-card,
+  .signin-card.auth-card {
+    padding: 24px 20px;
+    border-radius: 6px;
+    box-shadow: none;
+  }
+  .auth-card h1,
+  .signin-card h1 {
+    font-size: 32px;
+  }
+  .share-container {
+    padding: 30px 16px 80px;
+  }
+  .share-container .tracker > h1 {
+    font-size: 32px;
+  }
+}
