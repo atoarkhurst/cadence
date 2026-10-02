@@ -188,39 +188,51 @@ function Week() {
 
   return (
     <main className="week-shell week-studio">
+      <div className="week-relationship">
+        <div className="week-pair">
+          <span className="paired-initials" aria-hidden="true">
+            <span>{workspace.displayName?.[0]?.toUpperCase() || 'Y'}</span>
+            {workspace.partner && (
+              <span>{workspace.partner.display_name?.[0]?.toUpperCase() || 'P'}</span>
+            )}
+          </span>
+          <span>
+            {workspace.displayName || 'You'}
+            {workspace.partner ? ` & ${workspace.partner.display_name}` : ' · Your week'}
+          </span>
+        </div>
+        <span>Next check-in · {dayNames[workspace.schedule?.start_day ?? 1]}</span>
+      </div>
       <header className="week-hero">
         <div>
-          <p className="eyebrow">
-            {past ? 'Past week' : future ? 'Planning ahead' : 'This week'} ·{' '}
-            {weekLabel(selectedWeek)}
-          </p>
-          <h1>{past ? 'Your past week.' : future ? 'The week ahead.' : 'Find your rhythm.'}</h1>
+          {(past || future) && <p className="eyebrow">{past ? 'Past week' : 'Planning ahead'}</p>}
+          <h1>
+            {weekLabel(selectedWeek).split(', ')[0]}{' '}
+            <span className="week-year">{weekLabel(selectedWeek).split(', ')[1]}</span>
+          </h1>
         </div>
-        <div className="rhythm-signature" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-          <span />
-          <span />
-          <span />
-          <span />
-        </div>
-        <button className="share-btn" onClick={share}>
-          {copied ? 'Link copied ✓' : 'Share week ↗'}
-        </button>
+        <details className="week-options">
+          <summary>Week options</summary>
+          <div className="week-tools">
+            {!past && !future && workspace.previousStartsOn && (
+              <a href={appPath('/review?week=' + workspace.previousStartsOn)}>Review last week</a>
+            )}
+            <a href={appPath('/review?week=' + selectedWeek)}>
+              {past ? 'View review & history' : 'Review this week'}
+            </a>
+            <a href={appPath('/week?week=' + workspace.nextStartsOn)}>Plan the following week →</a>
+            <a href={appPath('/review')}>History</a>
+            <button className="share-btn" onClick={share}>
+              {copied ? 'Link copied ✓' : 'Share a snapshot ↗'}
+            </button>
+          </div>
+        </details>
       </header>
-
-      <div className="week-tools">
-        {!past && !future && workspace.previousStartsOn && (
-          <a href={appPath('/review?week=' + workspace.previousStartsOn)}>Review last week</a>
-        )}
-        <a href={appPath('/review?week=' + selectedWeek)}>
-          {past ? 'View review & history' : 'Review this week'}
+      {requestedWeek && (
+        <a className="week-back" href={appPath('/week')}>
+          ← Back to this week
         </a>
-        <a href={appPath('/week?week=' + workspace.nextStartsOn)}>Plan the following week →</a>
-        {requestedWeek && <a href={appPath('/week')}>Back to this week</a>}
-        <a href={appPath('/review')}>History</a>
-      </div>
+      )}
       {past && (
         <p className="week-notice">
           This is a past week. Its intentions and progress are kept here for you to look back on.
@@ -238,25 +250,22 @@ function Week() {
         <section className="intentions-panel">
           <div className="section-title-row">
             <div>
-              <p className="eyebrow">Your intentions</p>
-              <h2>Your week</h2>
+              <h2>
+                {workspace.displayName || 'Your intentions'} <small>You</small>
+              </h2>
             </div>
             <span className="count-pill">
-              {completed}
-              <span> / {total} done</span>
+              {completed} of {total} complete
             </span>
           </div>
           {!total && (
             <p className="hero-copy">
-              Choose 3–4 achievable goals. Use “Finish once” for one-time tasks and “Build a rhythm”
+              Choose 3–4 achievable goals. Use “Finish once” for one-time tasks and “Count progress”
               to count pages, applications, or sessions.
             </p>
           )}
           <fieldset className="week-controls" disabled={busy || past}>
-            <div className="intention-group">
-              <h3>
-                <span>01</span> Finish once
-              </h3>
+            <div className="intention-list">
               {tasks.map((task) => (
                 <div className={`intention-row ${task.done ? 'complete' : ''}`} key={task.id}>
                   <button
@@ -277,43 +286,6 @@ function Week() {
                   </button>
                 </div>
               ))}
-              {!past && (
-                <button
-                  type="button"
-                  className="add-intention-trigger"
-                  aria-expanded={taskOpen}
-                  aria-controls="task-composer"
-                  onClick={() => setTaskOpen((value) => !value)}
-                >
-                  {taskOpen ? '− Close' : '+ Add an intention'}
-                </button>
-              )}
-              {taskOpen && (
-                <form
-                  id="task-composer"
-                  className="quick-add"
-                  onSubmit={(event) => {
-                    event.preventDefault()
-                    saveChange(() => addTask(event))
-                  }}
-                >
-                  <input
-                    value={taskInput}
-                    onChange={(event) => setTaskInput(event.target.value)}
-                    maxLength={160}
-                    aria-label="One-time intention"
-                    placeholder="What would make this week feel good?"
-                    required
-                    autoFocus
-                  />
-                  <button>Add</button>
-                </form>
-              )}
-            </div>
-            <div className="intention-group">
-              <h3>
-                <span>02</span> Build a rhythm
-              </h3>
               {goals.map((goal) => (
                 <div className="rhythm-row" key={goal.id}>
                   <div className="rhythm-top">
@@ -349,55 +321,106 @@ function Week() {
                   </div>
                 </div>
               ))}
-              {!past && (
-                <button
-                  type="button"
-                  className="add-intention-trigger"
-                  aria-expanded={goalOpen}
-                  aria-controls="goal-composer"
-                  onClick={() => setGoalOpen((value) => !value)}
-                >
-                  {goalOpen ? '− Close' : '+ Add a repeatable intention'}
-                </button>
-              )}
-              {goalOpen && (
-                <form
-                  id="goal-composer"
-                  className="quick-add goal-add"
-                  onSubmit={(event) => {
-                    event.preventDefault()
-                    saveChange(() => addGoal(event))
-                  }}
-                >
-                  <input
-                    value={goalInput.name}
-                    onChange={(event) =>
-                      setGoalInput((item) => ({ ...item, name: event.target.value }))
-                    }
-                    maxLength={160}
-                    aria-label="Repeatable intention"
-                    placeholder="e.g. Read 100 pages"
-                    required
-                    autoFocus
-                  />
-                  <input
-                    className="target-input"
-                    aria-label="Weekly target"
-                    type="number"
-                    min="1"
-                    max="1000000"
-                    value={goalInput.target}
-                    onChange={(event) =>
-                      setGoalInput((item) => ({ ...item, target: event.target.value }))
-                    }
-                    placeholder="Target"
-                    inputMode="numeric"
-                    required
-                  />
-                  <button>Add</button>
-                </form>
-              )}
             </div>
+            {!past && (
+              <button
+                type="button"
+                className="add-intention-trigger"
+                aria-expanded={taskOpen || goalOpen}
+                aria-controls="intention-composer"
+                onClick={() => {
+                  const open = taskOpen || goalOpen
+                  setTaskOpen(!open)
+                  setGoalOpen(false)
+                }}
+              >
+                {taskOpen || goalOpen ? '− Close goal entry' : '+ Add an intention'}
+              </button>
+            )}
+            {(taskOpen || goalOpen) && (
+              <div id="intention-composer" className="intention-composer">
+                <div className="intention-types" aria-label="Goal type">
+                  <button
+                    type="button"
+                    className="intention-type"
+                    aria-pressed={taskOpen}
+                    onClick={() => {
+                      setTaskOpen(true)
+                      setGoalOpen(false)
+                    }}
+                  >
+                    Finish once
+                  </button>
+                  <button
+                    type="button"
+                    className="intention-type"
+                    aria-pressed={goalOpen}
+                    onClick={() => {
+                      setGoalOpen(true)
+                      setTaskOpen(false)
+                    }}
+                  >
+                    Count progress
+                  </button>
+                </div>
+                {taskOpen && (
+                  <form
+                    className="quick-add"
+                    onSubmit={(event) => {
+                      event.preventDefault()
+                      saveChange(() => addTask(event))
+                    }}
+                  >
+                    <input
+                      value={taskInput}
+                      onChange={(event) => setTaskInput(event.target.value)}
+                      maxLength={160}
+                      aria-label="One-time intention"
+                      placeholder="What would make this week feel good?"
+                      required
+                      autoFocus
+                    />
+                    <button>Add</button>
+                  </form>
+                )}
+                {goalOpen && (
+                  <form
+                    className="quick-add goal-add"
+                    onSubmit={(event) => {
+                      event.preventDefault()
+                      saveChange(() => addGoal(event))
+                    }}
+                  >
+                    <input
+                      value={goalInput.name}
+                      onChange={(event) =>
+                        setGoalInput((item) => ({ ...item, name: event.target.value }))
+                      }
+                      maxLength={160}
+                      aria-label="Repeatable intention"
+                      placeholder="e.g. Read 100 pages"
+                      required
+                      autoFocus
+                    />
+                    <input
+                      className="target-input"
+                      aria-label="Weekly target"
+                      type="number"
+                      min="1"
+                      max="1000000"
+                      value={goalInput.target}
+                      onChange={(event) =>
+                        setGoalInput((item) => ({ ...item, target: event.target.value }))
+                      }
+                      placeholder="Target"
+                      inputMode="numeric"
+                      required
+                    />
+                    <button>Add</button>
+                  </form>
+                )}
+              </div>
+            )}
           </fieldset>
           {workspace.partner && (
             <section className="encouragement-section" aria-labelledby="received-encouragement">
@@ -408,7 +431,11 @@ function Week() {
                   <EncouragementNote
                     key={cheer.id}
                     notification={notifications.find((item) => item.encouragement_id === cheer.id)}
-                    author={cheer.author}
+                    author={
+                      cheer.created_at && !Number.isNaN(Date.parse(cheer.created_at))
+                        ? `${cheer.author}, ${new Date(cheer.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
+                        : cheer.author
+                    }
                     message={cheer.message}
                   >
                     <EncouragementHeart
@@ -433,17 +460,19 @@ function Week() {
         <aside className="partner-panel">
           <div className="section-title-row">
             <div>
-              <p className="eyebrow">In your corner</p>
               <h2>
-                {workspace.partner
-                  ? workspace.partner.display_name + '’s week'
-                  : 'Invite your partner'}
+                {workspace.partner ? (
+                  <>
+                    {workspace.partner.display_name} <small>Your partner</small>
+                  </>
+                ) : (
+                  'Invite your partner'
+                )}
               </h2>
             </div>
             {workspace.partner && (
               <span className="count-pill">
-                {partnerCompleted}
-                <span> / {partnerTotal} done</span>
+                {partnerCompleted} of {partnerTotal} complete
               </span>
             )}
           </div>
@@ -481,12 +510,7 @@ function Week() {
                 </div>
               ))}
               <section className="encouragement-section" aria-labelledby="sent-encouragement">
-                <h3 id="sent-encouragement">
-                  Your encouragement for {workspace.partner.display_name}
-                </h3>
-                <p className="encouragement-hint">
-                  Your notes appear beneath their goals when they sign in.
-                </p>
+                <h3 id="sent-encouragement">Cheer them on</h3>
                 {cheers
                   .filter((cheer) => cheer.author_id === workspace.user.id)
                   .map((cheer) => (
@@ -527,7 +551,7 @@ function Week() {
                       aria-label="Encouragement"
                       placeholder={`Encourage ${workspace.partner.display_name}…`}
                     />
-                    <button aria-label="Send encouragement">↑</button>
+                    <button aria-label="Send encouragement">Send</button>
                   </form>
                 </fieldset>
               </section>
