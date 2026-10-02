@@ -15,7 +15,7 @@ vi.mock('./lib/cadence.js', () => ({
 vi.mock('./PartnerInvitations.jsx', () => ({ default: () => <p>Check invitations</p> }))
 afterEach(cleanup)
 
-function renderWeek(past = false) {
+function renderWeek(past = false, cheers = null) {
   useWeek.mockReturnValue({
     workspace: {
       startsOn: past ? '2026-09-19' : '2026-09-26',
@@ -28,7 +28,9 @@ function renderWeek(past = false) {
     },
     tasks: [{ id: 'task', name: 'Finish lesson', done: false }],
     goals: [],
-    cheers: [{ id: 'note', author_id: 'partner', author: 'Joey', message: 'You got this!' }],
+    cheers: cheers ?? [
+      { id: 'note', author_id: 'partner', author: 'Joey', message: 'You got this!' },
+    ],
     status: 'ready',
     busy: false,
     error: '',
@@ -76,4 +78,41 @@ test('past weeks keep history read-only', () => {
   expect(
     screen.getByRole('button', { name: 'Send encouragement' }).closest('fieldset').disabled,
   ).toBe(true)
+})
+
+test('many notes keep the latest encouragement visible and the send field reachable', () => {
+  const { container } = renderWeek(false, [
+    { id: 'latest', author_id: 'partner', author: 'Joey', message: 'Newest encouragement' },
+    { id: 'sent-latest', author_id: 'me', message: 'Most recent note to Joey' },
+    { id: 'older', author_id: 'partner', author: 'Joey', message: 'Earlier encouragement' },
+    { id: 'sent-older', author_id: 'me', message: 'Earlier note to Joey' },
+  ])
+  const received = container.querySelector('.intentions-panel .encouragement-section')
+  expect(within(received).getByText('Newest encouragement')).toBeTruthy()
+  const receivedHistory = within(received)
+    .getByText('View 1 earlier notes from Joey')
+    .closest('details')
+  expect(receivedHistory.open).toBe(false)
+  fireEvent.click(within(receivedHistory).getByText('View 1 earlier notes from Joey'))
+  expect(receivedHistory.open).toBe(true)
+  expect(within(receivedHistory).getByText('Earlier encouragement')).toBeTruthy()
+
+  const sent = container.querySelector('.partner-panel .encouragement-section')
+  const form = sent.querySelector('.cheer-form')
+  const lastSent = sent.querySelector('.latest-sent-note')
+  expect(form.compareDocumentPosition(lastSent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(within(lastSent).getByText('Most recent note to Joey')).toBeTruthy()
+  expect(sent.querySelector('.sent-history').open).toBe(false)
+})
+
+test('a long featured note can be opened without hiding its full text', () => {
+  const message = 'Keep showing up for the work that matters to you. '.repeat(5)
+  const { container } = renderWeek(false, [
+    { id: 'long', author_id: 'partner', author: 'Joey', message },
+  ])
+  const featured = container.querySelector('.featured-note')
+  expect(featured.querySelector('.note-excerpt')).toBeTruthy()
+  fireEvent.click(within(featured).getByRole('button', { name: 'Read full note' }))
+  expect(featured.querySelector('.note-excerpt')).toBeNull()
+  expect(featured.querySelector('.note-content > p').textContent).toBe(message)
 })

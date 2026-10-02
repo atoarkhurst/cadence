@@ -665,6 +665,32 @@ body {
   color: var(--cadence-ink);
   font: 19px/1.5 var(--cadence-serif);
 }
+.encouragement-week-group {
+  margin-top: 30px;
+}
+.encouragement-week-group > h2 {
+  margin: 0 0 8px;
+  color: var(--cadence-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.encouragement-shell .encouragement-week-group .cheer-card.received-note {
+  margin: 0;
+  padding: 16px 0;
+  border: 0;
+  border-bottom: 1px solid var(--cadence-line);
+  background: transparent;
+}
+.encouragement-shell .encouragement-week-group .cheer-card.unread-note {
+  background: var(--cadence-blue-soft);
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.encouragement-shell .encouragement-week-group .note-content > p {
+  font: 16px/1.55 var(--sans);
+}
 .note-meta,
 .notification-settings small {
   color: var(--cadence-muted);

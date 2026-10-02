@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { useEncouragement } from './lib/encouragement-context.js'
 
-export default function EncouragementNote({ notification, author, message, children }) {
+export default function EncouragementNote({
+  notification,
+  author,
+  message,
+  children,
+  featured = false,
+}) {
   const element = useRef(null)
   const { read } = useEncouragement()
   const [error, setError] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const longNote = featured && message.length > 160
   const unread = notification && !notification.read_at
   useEffect(() => {
     if (!unread || !element.current || !('IntersectionObserver' in window)) return
@@ -39,7 +47,7 @@ export default function EncouragementNote({ notification, author, message, child
   return (
     <article
       ref={element}
-      className={`cheer-card received-note ${unread ? 'unread-note' : ''}`}
+      className={`cheer-card received-note ${unread ? 'unread-note' : ''} ${featured ? 'featured-note' : ''}`}
       id={notification ? `note-${notification.id}` : undefined}
     >
       <span className="avatar joey" aria-hidden="true">
@@ -48,7 +56,12 @@ export default function EncouragementNote({ notification, author, message, child
       <div className="note-content">
         <strong>{author || 'Your partner'}</strong>
         {unread && <span className="new-note-label">New</span>}
-        <p>{message}</p>
+        <p className={longNote && !expanded ? 'note-excerpt' : undefined}>{message}</p>
+        {longNote && (
+          <button className="note-expand" onClick={() => setExpanded((value) => !value)}>
+            {expanded ? 'Show less' : 'Read full note'}
+          </button>
+        )}
         {children}
         {unread && (
           <button

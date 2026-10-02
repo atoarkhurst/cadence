@@ -18,6 +18,48 @@ import { useEncouragement } from './lib/encouragement-context.js'
 import EncouragementNote from './EncouragementNote.jsx'
 import EncouragementHeart from './EncouragementHeart.jsx'
 
+function WeekReceivedNote({ cheer, notification, userId, onChanged, featured = false }) {
+  const date =
+    cheer.created_at && !Number.isNaN(Date.parse(cheer.created_at))
+      ? `, ${new Date(cheer.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
+      : ''
+  return (
+    <EncouragementNote
+      notification={notification}
+      author={`${cheer.author}${date}`}
+      message={cheer.message}
+      featured={featured}
+    >
+      <EncouragementHeart
+        noteId={cheer.id}
+        hearted={Boolean(cheer.encouragement_reactions?.some((r) => r.user_id === userId))}
+        onChanged={onChanged}
+      />
+    </EncouragementNote>
+  )
+}
+
+function SentNote({ cheer, partner }) {
+  return (
+    <div className="cheer-card own sent-note">
+      <p>
+        <strong>You</strong>
+        {cheer.encouragement_reactions?.some((r) => r.user_id === partner.id) && (
+          <span
+            className="note-heart-receipt"
+            role="img"
+            aria-label={`${partner.display_name} hearted this note`}
+            title={`${partner.display_name} hearted this note`}
+          >
+            ♥
+          </span>
+        )}
+        <small>{cheer.message}</small>
+      </p>
+    </div>
+  )
+}
+
 function Week() {
   const { items: notifications } = useEncouragement()
   const requestedWeek = new URLSearchParams(window.location.search).get('week')
@@ -67,6 +109,12 @@ function Week() {
   const total = tasks.length + goals.length
   const partnerCompleted = workspace?.partnerItems.filter(isComplete).length ?? 0
   const partnerTotal = workspace?.partnerItems.length ?? 0
+  const receivedCheers = workspace?.partner
+    ? cheers.filter((cheer) => cheer.author_id === workspace.partner.id)
+    : []
+  const sentCheers = workspace?.user
+    ? cheers.filter((cheer) => cheer.author_id === workspace.user.id)
+    : []
 
   async function share() {
     if (
@@ -425,29 +473,38 @@ function Week() {
           {workspace.partner && (
             <section className="encouragement-section" aria-labelledby="received-encouragement">
               <h3 id="received-encouragement">Encouragement for you</h3>
-              {cheers
-                .filter((cheer) => cheer.author_id === workspace.partner.id)
-                .map((cheer) => (
-                  <EncouragementNote
-                    key={cheer.id}
-                    notification={notifications.find((item) => item.encouragement_id === cheer.id)}
-                    author={
-                      cheer.created_at && !Number.isNaN(Date.parse(cheer.created_at))
-                        ? `${cheer.author}, ${new Date(cheer.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`
-                        : cheer.author
-                    }
-                    message={cheer.message}
-                  >
-                    <EncouragementHeart
-                      noteId={cheer.id}
-                      hearted={Boolean(
-                        cheer.encouragement_reactions?.some((r) => r.user_id === workspace.user.id),
+              {receivedCheers[0] && (
+                <WeekReceivedNote
+                  key={receivedCheers[0].id}
+                  cheer={receivedCheers[0]}
+                  notification={notifications.find(
+                    (item) => item.encouragement_id === receivedCheers[0].id,
+                  )}
+                  userId={workspace.user.id}
+                  onChanged={refreshWeek}
+                  featured
+                />
+              )}
+              {receivedCheers.length > 1 && (
+                <details className="week-note-history">
+                  <summary>
+                    View {receivedCheers.length - 1} earlier notes from{' '}
+                    {workspace.partner.display_name}
+                  </summary>
+                  {receivedCheers.slice(1).map((cheer) => (
+                    <WeekReceivedNote
+                      key={cheer.id}
+                      cheer={cheer}
+                      notification={notifications.find(
+                        (item) => item.encouragement_id === cheer.id,
                       )}
+                      userId={workspace.user.id}
                       onChanged={refreshWeek}
                     />
-                  </EncouragementNote>
-                ))}
-              {!cheers.some((cheer) => cheer.author_id === workspace.partner.id) && (
+                  ))}
+                </details>
+              )}
+              {receivedCheers.length === 0 && (
                 <p className="encouragement-hint">
                   Notes from {workspace.partner.display_name} will appear here, alongside your
                   goals.
@@ -511,31 +568,6 @@ function Week() {
               ))}
               <section className="encouragement-section" aria-labelledby="sent-encouragement">
                 <h3 id="sent-encouragement">Cheer them on</h3>
-                {cheers
-                  .filter((cheer) => cheer.author_id === workspace.user.id)
-                  .map((cheer) => (
-                    <div className="cheer-card own" key={cheer.id}>
-                      <span className="avatar you">
-                        {workspace.displayName?.[0]?.toUpperCase() ?? 'Y'}
-                      </span>
-                      <p>
-                        <strong>You</strong>
-                        {cheer.encouragement_reactions?.some(
-                          (r) => r.user_id === workspace.partner.id,
-                        ) && (
-                          <span
-                            className="note-heart-receipt"
-                            role="img"
-                            aria-label={`${workspace.partner.display_name} hearted this note`}
-                            title={`${workspace.partner.display_name} hearted this note`}
-                          >
-                            ♥
-                          </span>
-                        )}
-                        <small>{cheer.message}</small>
-                      </p>
-                    </div>
-                  ))}
                 <fieldset className="week-controls" disabled={busy || past}>
                   <form
                     className="cheer-form"
@@ -554,6 +586,20 @@ function Week() {
                     <button aria-label="Send encouragement">Send</button>
                   </form>
                 </fieldset>
+                {sentCheers[0] && (
+                  <div className="latest-sent-note">
+                    <span>Last note you sent</span>
+                    <SentNote cheer={sentCheers[0]} partner={workspace.partner} />
+                  </div>
+                )}
+                {sentCheers.length > 1 && (
+                  <details className="week-note-history sent-history">
+                    <summary>View {sentCheers.length - 1} earlier notes you sent</summary>
+                    {sentCheers.slice(1).map((cheer) => (
+                      <SentNote key={cheer.id} cheer={cheer} partner={workspace.partner} />
+                    ))}
+                  </details>
+                )}
               </section>
             </>
           ) : (

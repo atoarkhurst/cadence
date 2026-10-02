@@ -3,11 +3,13 @@ import { useEffect } from 'react'
 import { useEncouragement } from './lib/encouragement-context.js'
 import EncouragementNote from './EncouragementNote.jsx'
 import EncouragementHeart from './EncouragementHeart.jsx'
+import { weekLabel } from './lib/weeks.js'
 
 export default function Encouragement() {
   const { items, status, refresh, hasMore, more, userId } = useEncouragement()
   const requested = new URLSearchParams(window.location.search).get('message')
   const target = items.find((note) => note.id === requested)?.id
+  const weeks = [...new Set(items.map((note) => note.weeks?.starts_on || 'earlier'))]
   useEffect(() => {
     if (target)
       document
@@ -47,38 +49,47 @@ export default function Encouragement() {
           <Link to="/week">Open your week →</Link>
         </div>
       )}
-      {items.map((note) => (
-        <EncouragementNote
-          key={note.id}
-          notification={note}
-          author={note.profiles?.display_name}
-          message={note.encouragements?.message || 'This note is no longer available.'}
-        >
-          {note.encouragements && (
-            <EncouragementHeart
-              noteId={note.encouragement_id}
-              hearted={Boolean(
-                note.encouragements.encouragement_reactions?.some((r) => r.user_id === userId),
-              )}
-              onChanged={refresh}
-            />
-          )}
-          <div className="note-meta">
-            <time dateTime={note.created_at}>
-              {new Date(note.created_at).toLocaleString(undefined, {
-                month: 'short',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-              })}
-            </time>
-            {note.weeks && (
-              <Link to={`/week?week=${note.weeks.starts_on}#received-encouragement`}>
-                View this week
-              </Link>
-            )}
-          </div>
-        </EncouragementNote>
+      {weeks.map((start) => (
+        <section className="encouragement-week-group" key={start}>
+          <h2>{start === 'earlier' ? 'Earlier notes' : weekLabel(start)}</h2>
+          {items
+            .filter((note) => (note.weeks?.starts_on || 'earlier') === start)
+            .map((note) => (
+              <EncouragementNote
+                key={note.id}
+                notification={note}
+                author={note.profiles?.display_name}
+                message={note.encouragements?.message || 'This note is no longer available.'}
+              >
+                {note.encouragements && (
+                  <EncouragementHeart
+                    noteId={note.encouragement_id}
+                    hearted={Boolean(
+                      note.encouragements.encouragement_reactions?.some(
+                        (r) => r.user_id === userId,
+                      ),
+                    )}
+                    onChanged={refresh}
+                  />
+                )}
+                <div className="note-meta">
+                  <time dateTime={note.created_at}>
+                    {new Date(note.created_at).toLocaleString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })}
+                  </time>
+                  {note.weeks && (
+                    <Link to={`/week?week=${note.weeks.starts_on}#received-encouragement`}>
+                      View this week
+                    </Link>
+                  )}
+                </div>
+              </EncouragementNote>
+            ))}
+        </section>
       ))}
       {hasMore && (
         <button className="note-read" onClick={more}>
