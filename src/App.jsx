@@ -9,6 +9,9 @@ import { isComplete } from './lib/partnership.js'
 function App() {
   const { workspace, tasks, goals, busy, status, error, setTasks, setGoals, saveChange } = useWeek()
   const [input, setInput] = useState('')
+  const [targetInput, setTargetInput] = useState('')
+  const [composerOpen, setComposerOpen] = useState(false)
+  const [intentionKind, setIntentionKind] = useState('one_time')
 
   async function toggleTask(task) {
     const done = !task.done
@@ -18,13 +21,21 @@ function App() {
     )
   }
 
-  async function addIntention(event) {
-    event.preventDefault()
+  async function addIntention() {
     const name = input.trim()
     if (!name) return
-    const id = await createIntention(workspace.weekId, workspace.user.id, name, 'one_time')
-    setTasks((current) => [...current, { id, name, done: false, kind: 'one_time' }])
+    if (intentionKind === 'count') {
+      const target = Number(targetInput)
+      if (!Number.isSafeInteger(target) || target < 1 || target > 1000000) return
+      const id = await createIntention(workspace.weekId, workspace.user.id, name, 'count', target)
+      setGoals((current) => [...current, { id, name, target, count: 0, kind: 'count' }])
+    } else {
+      const id = await createIntention(workspace.weekId, workspace.user.id, name, 'one_time')
+      setTasks((current) => [...current, { id, name, done: false, kind: 'one_time' }])
+    }
     setInput('')
+    setTargetInput('')
+    setComposerOpen(false)
   }
 
   async function adjustGoal(goal, change) {
@@ -158,25 +169,74 @@ function App() {
               </div>
             ))}
           </div>
-          <form
-            className="add-habit-form"
-            onSubmit={(event) => {
-              event.preventDefault()
-              saveChange(() => addIntention(event))
-            }}
+          <button
+            type="button"
+            className="daily-add-trigger"
+            aria-expanded={composerOpen}
+            aria-controls="daily-intention-composer"
+            onClick={() => setComposerOpen((open) => !open)}
           >
-            <input
-              className="add-habit-input"
-              aria-label="New weekly intention"
-              maxLength={160}
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              placeholder="Add an intention for this week"
-            />
-            <button className="add-habit-btn" disabled={busy}>
-              Add
-            </button>
-          </form>
+            {composerOpen ? '− Close goal entry' : '+ Add an intention'}
+          </button>
+          {composerOpen && (
+            <div id="daily-intention-composer" className="daily-intention-composer">
+              <div className="daily-intention-types" role="group" aria-label="Intention type">
+                <button
+                  type="button"
+                  aria-pressed={intentionKind === 'one_time'}
+                  onClick={() => setIntentionKind('one_time')}
+                >
+                  Finish once
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={intentionKind === 'count'}
+                  onClick={() => setIntentionKind('count')}
+                >
+                  Count progress
+                </button>
+              </div>
+              <form
+                className={`add-habit-form ${intentionKind === 'count' ? 'counted' : ''}`}
+                onSubmit={(event) => {
+                  event.preventDefault()
+                  saveChange(addIntention)
+                }}
+              >
+                <input
+                  className="add-habit-input"
+                  aria-label={
+                    intentionKind === 'count' ? 'Counted intention' : 'One-time intention'
+                  }
+                  maxLength={160}
+                  required
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  placeholder={
+                    intentionKind === 'count' ? 'e.g. Read 100 pages' : 'What will you finish?'
+                  }
+                />
+                {intentionKind === 'count' && (
+                  <input
+                    className="add-habit-target"
+                    aria-label="Weekly target"
+                    type="number"
+                    min="1"
+                    max="1000000"
+                    step="1"
+                    inputMode="numeric"
+                    required
+                    value={targetInput}
+                    onChange={(event) => setTargetInput(event.target.value)}
+                    placeholder="Target"
+                  />
+                )}
+                <button className="add-habit-btn" disabled={busy}>
+                  Add
+                </button>
+              </form>
+            </div>
+          )}
           <a className="daily-full-week" href={appPath('/week')}>
             See the full week →
           </a>

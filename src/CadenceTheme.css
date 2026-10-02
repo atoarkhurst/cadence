@@ -223,8 +223,44 @@ body {
   background: var(--cadence-blue-soft);
   font-weight: 600;
 }
+.daily-add-trigger {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 16px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--cadence-blue);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.daily-intention-composer {
+  padding: 8px 0 12px;
+}
+.daily-intention-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.daily-intention-types button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--cadence-muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.daily-intention-types button[aria-pressed='true'] {
+  background: var(--cadence-blue-soft);
+  color: var(--cadence-blue);
+}
 .add-habit-form {
-  margin-top: 20px;
+  margin-top: 8px;
 }
 .add-habit-input {
   min-height: 48px;
@@ -233,6 +269,20 @@ body {
   background: var(--cadence-paper);
   color: var(--cadence-ink);
   font-size: 15px;
+}
+.add-habit-target {
+  width: 96px;
+  min-height: 48px;
+  padding: 10px;
+  border: 1px solid var(--cadence-line);
+  border-radius: 4px;
+  background: var(--cadence-paper);
+  color: var(--cadence-ink);
+  font-size: 15px;
+}
+.add-habit-target:focus {
+  border-color: var(--cadence-blue);
+  box-shadow: 0 0 0 3px var(--cadence-blue-soft);
 }
 .add-habit-btn {
   min-width: 72px;
@@ -786,6 +836,16 @@ body {
   }
   .add-habit-form {
     display: flex;
+  }
+  .add-habit-form.counted {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .add-habit-form.counted .add-habit-input {
+    grid-column: 1 / -1;
+  }
+  .add-habit-form.counted .add-habit-target {
+    width: 100%;
   }
   .add-habit-btn {
     min-width: 62px;
