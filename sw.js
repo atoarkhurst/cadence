@@ -6,7 +6,7 @@ self.addEventListener('push', (event) => {
   const base = self.registration.scope
   event.waitUntil(self.registration.showNotification('A little encouragement', {
     body: 'Your partner left you a note in Cadence.',
-    icon: new URL('cadence-icon-192.png', base).href,
+    icon: new URL('cadence-paired-192.png', base).href,
     tag: id ? `cadence-${id}` : 'cadence-encouragement',
     renotify: false,
     data: { url: new URL('encouragement' + (id ? `?message=${id}` : ''), base).href },
