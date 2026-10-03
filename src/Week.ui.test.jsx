@@ -15,7 +15,7 @@ vi.mock('./lib/cadence.js', () => ({
 vi.mock('./PartnerInvitations.jsx', () => ({ default: () => <p>Check invitations</p> }))
 afterEach(cleanup)
 
-function renderWeek(past = false, cheers = null) {
+function renderWeek(past = false, cheers = null, partnerItems = []) {
   useWeek.mockReturnValue({
     workspace: {
       startsOn: past ? '2026-09-19' : '2026-09-26',
@@ -24,7 +24,7 @@ function renderWeek(past = false, cheers = null) {
       schedule: { start_day: 6 },
       user: { id: 'me' },
       partner: { id: 'partner', display_name: 'Joey' },
-      partnerItems: [],
+      partnerItems,
     },
     tasks: [{ id: 'task', name: 'Finish lesson', done: false }],
     goals: [],
@@ -66,6 +66,21 @@ test('received encouragement stays with own intentions and goal entry remains ac
   fireEvent.click(screen.getByRole('button', { name: 'Count progress' }))
   expect(screen.getByRole('spinbutton', { name: 'Weekly target' })).toBeTruthy()
   expect(screen.queryByRole('textbox', { name: 'One-time intention' })).toBeNull()
+})
+
+test('partner tasks stay distinct from counted progress without repeated empty tracks', () => {
+  const { container } = renderWeek(false, null, [
+    { id: 'first', name: 'Go to the gym', kind: 'one_time', done: false },
+    { id: 'second', name: 'Plan meals', kind: 'one_time', done: true },
+    { id: 'third', name: 'Read pages', kind: 'count', count: 2, target: 5 },
+  ])
+  const partner = container.querySelector('.partner-panel')
+  expect(within(partner).getByText('In your corner')).toBeTruthy()
+  expect(within(partner).getByText('Go to the gym')).toBeTruthy()
+  expect(within(partner).getByText('Done ✓')).toBeTruthy()
+  expect(within(partner).getByText('2 / 5')).toBeTruthy()
+  expect(partner.querySelectorAll('.partner-goal .mini-track')).toHaveLength(1)
+  expect(within(partner).queryByText('Not yet')).toBeNull()
 })
 
 test('past weeks keep history read-only', () => {

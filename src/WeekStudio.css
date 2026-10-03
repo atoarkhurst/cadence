@@ -89,9 +89,9 @@ body:has(.week-studio) {
 .week-studio .week-hero {
   align-items: baseline;
   gap: 16px;
-  margin: 14px 0 24px;
-  padding-bottom: 24px;
-  border-bottom: 2px solid var(--ink);
+  margin: 14px 0 28px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--line);
 }
 .week-studio .week-hero h1 {
   font:
@@ -153,8 +153,8 @@ body:has(.week-studio) {
   margin-bottom: 20px;
 }
 .week-studio .week-grid {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 48px;
+  grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+  gap: 18px;
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -163,21 +163,36 @@ body:has(.week-studio) {
 }
 .week-studio .intentions-panel,
 .week-studio .partner-panel {
-  border: 0;
-  border-radius: 0;
+  border: 1px solid #e6eaf0;
+  border-radius: 16px;
   box-shadow: none;
-  padding: 0;
-  background: transparent;
+  padding: 26px 28px 28px;
+  background: #fff;
   min-width: 0;
 }
+.week-studio .partner-panel {
+  background: #f5f7fc;
+  border-color: #e5eaf4;
+}
 .week-studio .section-title-row {
-  align-items: baseline;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 10px 16px;
+  margin-bottom: 16px;
+}
+.week-studio .panel-kicker {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.week-studio .partner-panel .panel-kicker {
+  color: #52668a;
 }
 .week-studio .section-title-row h2 {
-  font-size: 24px;
+  font-size: 23px;
   font-weight: 600;
   margin: 0;
   letter-spacing: -0.8px;
@@ -191,20 +206,31 @@ body:has(.week-studio) {
   margin-left: 6px;
 }
 .week-studio .count-pill {
-  background: transparent;
-  padding: 0;
-  font-size: 12px;
+  background: #f0f3fb;
+  border-radius: 6px;
+  padding: 6px 9px;
+  font-size: 11px;
   color: var(--muted);
-  font-weight: 400;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.week-studio .partner-panel .count-pill {
+  background: #e9eef8;
+}
+.week-studio .partner-header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 .week-studio .intention-row {
-  min-height: 72px;
+  min-height: 64px;
   border: 0;
   border-bottom: 1px solid var(--line);
   border-radius: 0;
   margin: 0;
   background: transparent;
-  padding: 10px 0;
+  padding: 8px 0;
   gap: 8px;
 }
 .week-studio .intention-row > span {
@@ -239,7 +265,7 @@ body:has(.week-studio) {
   font-size: 18px;
 }
 .week-studio .rhythm-row {
-  padding: 14px 0;
+  padding: 12px 0;
   border: 0;
   border-bottom: 1px solid var(--line);
   border-radius: 0;
@@ -324,24 +350,31 @@ body:has(.week-studio) {
   font-size: 13px;
 }
 .week-studio .partner-refresh {
-  display: block;
-  margin: 0 0 0 auto;
-  padding: 6px 0;
-  min-height: 44px;
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+  min-height: 28px;
   background: none;
   border: 0;
-  color: var(--muted);
-  font-size: 12px;
+  color: #52668a;
+  font-size: 11px;
   cursor: pointer;
 }
+.week-studio .partner-refresh:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
 .week-studio .partner-goal {
-  padding: 18px 0;
-  min-height: 72px;
+  padding: 14px 0;
+  min-height: 58px;
+  border-bottom-color: #dce3ef;
 }
 .week-studio .partner-goal > div:first-child {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.5;
   gap: 12px;
+  align-items: baseline;
+  margin-bottom: 0;
 }
 .week-studio .partner-goal span {
   min-width: 0;
@@ -349,14 +382,29 @@ body:has(.week-studio) {
 }
 .week-studio .partner-goal strong {
   color: var(--muted);
-  font-size: 12px;
-  font-weight: 400;
+  font-size: 11px;
+  font-weight: 500;
   flex-shrink: 0;
+}
+.week-studio .partner-goal.done strong {
+  color: var(--accent);
+}
+.week-studio .partner-goal .mini-track {
+  height: 3px;
+  margin-top: 10px;
+  background: #dce3ef;
+}
+.week-studio .partner-goal .mini-track span {
+  background: var(--accent);
 }
 .week-studio .encouragement-section {
   border: 0;
-  margin-top: 26px;
-  padding-top: 0;
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 18px;
+}
+.week-studio .partner-panel .encouragement-section {
+  border-top-color: #dce3ef;
 }
 .week-studio .encouragement-section h3 {
   font-size: 13px;
@@ -535,7 +583,7 @@ body:has(.week-studio) {
 @media (max-width: 760px) {
   .week-studio .week-grid {
     grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
+    gap: 14px;
   }
   .week-studio .week-hero {
     flex-direction: row;
@@ -556,8 +604,20 @@ body:has(.week-studio) {
     justify-content: flex-start;
   }
   .week-studio .partner-panel {
-    border-top: 1px solid var(--line);
-    padding-top: 24px;
+    border-top: 1px solid #e5eaf4;
+  }
+  .week-studio .intentions-panel,
+  .week-studio .partner-panel {
+    padding: 20px;
+  }
+  .week-studio .section-title-row {
+    gap: 8px;
+  }
+  .week-studio .section-title-row h2 {
+    font-size: 22px;
+  }
+  .week-studio .partner-goal > div:first-child {
+    gap: 12px;
   }
   .week-studio .week-footer p {
     flex-basis: 100%;

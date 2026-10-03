@@ -298,6 +298,7 @@ function Week() {
         <section className="intentions-panel">
           <div className="section-title-row">
             <div>
+              <p className="panel-kicker">Your plan</p>
               <h2>
                 {workspace.displayName || 'Your intentions'} <small>You</small>
               </h2>
@@ -517,6 +518,7 @@ function Week() {
         <aside className="partner-panel">
           <div className="section-title-row">
             <div>
+              <p className="panel-kicker">In your corner</p>
               <h2>
                 {workspace.partner ? (
                   <>
@@ -528,17 +530,16 @@ function Week() {
               </h2>
             </div>
             {workspace.partner && (
-              <span className="count-pill">
-                {partnerCompleted} of {partnerTotal} complete
-              </span>
+              <div className="partner-header-actions">
+                <span className="count-pill">
+                  {partnerCompleted} of {partnerTotal} complete
+                </span>
+                <button className="partner-refresh" disabled={busy} onClick={refreshWeek}>
+                  Refresh progress
+                </button>
+              </div>
             )}
           </div>
-
-          {workspace.partner && (
-            <button className="partner-refresh" disabled={busy} onClick={refreshWeek}>
-              Refresh progress
-            </button>
-          )}
           {error && <p role="alert">{error}</p>}
           {workspace.partner ? (
             <>
@@ -546,24 +547,27 @@ function Week() {
                 <p className="hero-copy">Your partner hasn’t added any intentions yet.</p>
               )}
               {workspace.partnerItems.map((item) => (
-                <div className={`partner-goal ${isComplete(item) ? 'done' : ''}`} key={item.id}>
+                <div
+                  className={`partner-goal ${item.kind === 'count' ? 'count-goal' : 'task-goal'} ${isComplete(item) ? 'done' : ''}`}
+                  key={item.id}
+                >
                   <div>
                     <span>{item.name}</span>
-                    <strong>
-                      {item.kind === 'count'
-                        ? `${item.count} / ${item.target}`
-                        : item.done
-                          ? 'Done ✓'
-                          : 'Not yet'}
-                    </strong>
+                    {item.kind === 'count' ? (
+                      <strong>
+                        {item.count} / {item.target}
+                      </strong>
+                    ) : (
+                      item.done && <strong>Done ✓</strong>
+                    )}
                   </div>
-                  <div className="mini-track">
-                    <span
-                      style={{
-                        width: `${item.kind === 'count' ? Math.min(100, (item.count / item.target) * 100) : item.done ? 100 : 0}%`,
-                      }}
-                    />
-                  </div>
+                  {item.kind === 'count' && (
+                    <div className="mini-track">
+                      <span
+                        style={{ width: `${Math.min(100, (item.count / item.target) * 100)}%` }}
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
               <section className="encouragement-section" aria-labelledby="sent-encouragement">

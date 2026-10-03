@@ -82,7 +82,7 @@ body {
   align-items: end;
   margin: 0 0 30px;
   padding: 0 0 24px;
-  border-bottom: 2px solid var(--cadence-ink);
+  border-bottom: 1px solid var(--cadence-line);
 }
 .daily-date,
 .side-label,
@@ -344,7 +344,7 @@ body {
 .account-header {
   margin-bottom: 28px;
   padding-bottom: 24px;
-  border-bottom: 2px solid var(--cadence-ink);
+  border-bottom: 1px solid var(--cadence-line);
 }
 .account-eyebrow,
 .signin-card .auth-kicker {
@@ -528,7 +528,7 @@ body {
   max-width: none;
   margin: 20px 0 24px;
   padding-bottom: 24px;
-  border-bottom: 2px solid var(--cadence-ink);
+  border-bottom: 1px solid var(--cadence-line);
 }
 .review-header h1,
 .encouragement-shell h1 {
@@ -638,7 +638,7 @@ body {
 }
 .encouragement-intro {
   padding-bottom: 24px;
-  border-bottom: 2px solid var(--cadence-ink);
+  border-bottom: 1px solid var(--cadence-line);
 }
 .encouragement-empty {
   padding: 26px 0;
