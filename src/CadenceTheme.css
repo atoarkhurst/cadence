@@ -223,11 +223,18 @@ body {
   background: var(--cadence-blue-soft);
   font-weight: 600;
 }
+.daily-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 16px;
+}
 .daily-add-trigger {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  margin-top: 16px;
   padding: 8px 0;
   border: 0;
   background: transparent;
@@ -292,7 +299,7 @@ body {
   font-size: 13px;
 }
 .daily-full-week {
-  margin-top: 10px;
+  white-space: nowrap;
 }
 .partner-note {
   border-left: 1px solid var(--cadence-line);
@@ -836,6 +843,26 @@ body {
   }
   .daily-grid {
     gap: 24px;
+  }
+  .daily-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    margin-top: 18px;
+  }
+  .daily-add-trigger {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+    padding: 11px 16px;
+    border-radius: 4px;
+    background: var(--cadence-blue);
+    color: white;
+    font-weight: 600;
+  }
+  .daily-full-week {
+    justify-content: center;
+    min-height: 48px;
   }
   .card-heading h2 {
     font-size: 22px;

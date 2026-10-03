@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { useLayoutEffect } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import './Root.css'
 import './Encouragement.css'
 import EncouragementProvider from './EncouragementProvider.jsx'
@@ -17,6 +18,12 @@ function Root() {
 
 function Navigation() {
   const { unreadCount, userId } = useEncouragement()
+  const { pathname, hash } = useLocation()
+
+  useLayoutEffect(() => {
+    if (!hash) window.scrollTo(0, 0)
+  }, [pathname, hash])
+
   return (
     <>
       <nav className="main-nav" aria-label="Main navigation">

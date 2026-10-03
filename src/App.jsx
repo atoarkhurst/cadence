@@ -169,15 +169,20 @@ function App() {
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            className="daily-add-trigger"
-            aria-expanded={composerOpen}
-            aria-controls="daily-intention-composer"
-            onClick={() => setComposerOpen((open) => !open)}
-          >
-            {composerOpen ? '− Close goal entry' : '+ Add an intention'}
-          </button>
+          <div className="daily-actions">
+            <button
+              type="button"
+              className="daily-add-trigger"
+              aria-expanded={composerOpen}
+              aria-controls="daily-intention-composer"
+              onClick={() => setComposerOpen((open) => !open)}
+            >
+              {composerOpen ? '− Close goal entry' : '+ Add an intention'}
+            </button>
+            <a className="daily-full-week" href={appPath('/week')}>
+              See the full week →
+            </a>
+          </div>
           {composerOpen && (
             <div id="daily-intention-composer" className="daily-intention-composer">
               <div className="daily-intention-types" role="group" aria-label="Intention type">
@@ -237,9 +242,6 @@ function App() {
               </form>
             </div>
           )}
-          <a className="daily-full-week" href={appPath('/week')}>
-            See the full week →
-          </a>
         </section>
         <aside className="daily-side">
           <section className="partner-note">
