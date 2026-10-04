@@ -43,6 +43,7 @@ test('Today offers both one-time and counted intentions', () => {
   fireEvent.click(screen.getByRole('button', { name: '+ Add an intention' }))
   expect(screen.getByRole('textbox', { name: 'One-time intention' })).toBeTruthy()
   fireEvent.click(screen.getByRole('button', { name: 'Count progress' }))
+  expect(screen.getByText('How many this week?')).toBeTruthy()
   expect(screen.getByRole('spinbutton', { name: 'Weekly target' })).toBeTruthy()
   expect(screen.queryByRole('textbox', { name: 'One-time intention' })).toBeNull()
 })

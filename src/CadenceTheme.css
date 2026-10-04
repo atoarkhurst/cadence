@@ -269,6 +269,24 @@ body {
 .add-habit-form {
   margin-top: 8px;
 }
+.add-habit-form.counted {
+  align-items: end;
+}
+.add-habit-form.counted .goal-name-field {
+  flex: 1;
+}
+.add-habit-form.counted .goal-name-field > span {
+  color: var(--cadence-muted);
+}
+.add-habit-form.counted .goal-name-field input {
+  width: 100%;
+}
+.add-habit-form .weekly-amount-field {
+  flex: 0 0 156px;
+}
+.add-habit-form .weekly-amount-field > span {
+  color: var(--cadence-muted);
+}
 .add-habit-input {
   min-height: 48px;
   border-color: var(--cadence-line);
@@ -278,7 +296,7 @@ body {
   font-size: 15px;
 }
 .add-habit-target {
-  width: 96px;
+  width: 100%;
   min-height: 48px;
   padding: 10px;
   border: 1px solid var(--cadence-line);
@@ -894,11 +912,15 @@ body {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
   }
-  .add-habit-form.counted .add-habit-input {
+  .add-habit-form.counted .goal-name-field {
     grid-column: 1 / -1;
   }
   .add-habit-form.counted .add-habit-target {
     width: 100%;
+  }
+  .add-habit-form.counted .weekly-amount-field {
+    grid-column: 1;
+    min-width: 0;
   }
   .add-habit-btn {
     min-width: 62px;

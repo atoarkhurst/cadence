@@ -256,16 +256,6 @@ button {
   background: var(--green);
   border-color: var(--green);
 }
-.row-delete {
-  border: 0;
-  background: transparent;
-  color: #b5b6ba;
-  font-size: 17px;
-  cursor: pointer;
-}
-.row-delete:hover {
-  color: #7f8187;
-}
 .quick-add,
 .cheer-form {
   display: flex;
@@ -304,9 +294,6 @@ button {
 .cheer-form button:hover {
   background: #e3e4f8;
 }
-.goal-add .target-input {
-  flex: 0 0 72px;
-}
 .rhythm-row {
   padding: 14px;
 }
@@ -328,7 +315,7 @@ button {
   justify-content: flex-end;
   gap: 5px;
 }
-.rhythm-actions button {
+.rhythm-actions > button {
   width: 27px;
   height: 25px;
   border: 1px solid var(--line);
@@ -338,7 +325,7 @@ button {
   font-weight: 600;
   cursor: pointer;
 }
-.rhythm-actions button:hover {
+.rhythm-actions > button:hover {
   background: #f3f3f1;
   color: var(--ink);
 }
@@ -437,14 +424,6 @@ button {
   .partner-panel,
   .pulse-card {
     padding: 20px;
-  }
-  .goal-add {
-    display: grid;
-    grid-template-columns: 1fr 72px;
-  }
-  .goal-add button {
-    grid-column: 1/-1;
-    padding: 11px;
   }
 }
 .encouragement-section {

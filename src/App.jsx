@@ -208,33 +208,47 @@ function App() {
                   saveChange(addIntention)
                 }}
               >
-                <input
-                  className="add-habit-input"
-                  aria-label={
-                    intentionKind === 'count' ? 'Counted intention' : 'One-time intention'
-                  }
-                  maxLength={160}
-                  required
-                  value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder={
-                    intentionKind === 'count' ? 'e.g. Read 100 pages' : 'What will you finish?'
-                  }
-                />
-                {intentionKind === 'count' && (
+                {intentionKind === 'count' ? (
+                  <label className="goal-name-field">
+                    <span>Goal name</span>
+                    <input
+                      className="add-habit-input"
+                      aria-label="Counted intention"
+                      maxLength={160}
+                      required
+                      value={input}
+                      onChange={(event) => setInput(event.target.value)}
+                      placeholder="e.g. Read 100 pages"
+                    />
+                  </label>
+                ) : (
                   <input
-                    className="add-habit-target"
-                    aria-label="Weekly target"
-                    type="number"
-                    min="1"
-                    max="1000000"
-                    step="1"
-                    inputMode="numeric"
+                    className="add-habit-input"
+                    aria-label="One-time intention"
+                    maxLength={160}
                     required
-                    value={targetInput}
-                    onChange={(event) => setTargetInput(event.target.value)}
-                    placeholder="Target"
+                    value={input}
+                    onChange={(event) => setInput(event.target.value)}
+                    placeholder="What will you finish?"
                   />
+                )}
+                {intentionKind === 'count' && (
+                  <label className="weekly-amount-field">
+                    <span>How many this week?</span>
+                    <input
+                      className="add-habit-target"
+                      aria-label="Weekly target"
+                      type="number"
+                      min="1"
+                      max="1000000"
+                      step="1"
+                      inputMode="numeric"
+                      required
+                      value={targetInput}
+                      onChange={(event) => setTargetInput(event.target.value)}
+                      placeholder="e.g. 4"
+                    />
+                  </label>
                 )}
                 <button className="add-habit-btn" disabled={busy}>
                   Add

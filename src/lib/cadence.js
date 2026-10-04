@@ -176,6 +176,29 @@ export async function createIntention(weekId, userId, title, kind, target = null
   return data.id
 }
 
+export async function updateIntention(intention, userId, title, target = null) {
+  const name = title.trim()
+  if (!name || name.length > 160) throw new Error('Keep the goal name under 160 characters.')
+  if (
+    intention.kind === 'count' &&
+    (!Number.isSafeInteger(target) || target < 1 || target > 1000000)
+  )
+    throw new Error('Choose a weekly amount between 1 and 1,000,000.')
+
+  // Compare the previous values so an older tab cannot silently overwrite an edit.
+  let query = supabase
+    .from('intentions')
+    .update({ title: name, target: intention.kind === 'count' ? target : null })
+    .eq('id', intention.id)
+    .eq('owner_id', userId)
+    .eq('title', intention.name)
+  query =
+    intention.kind === 'count' ? query.eq('target', intention.target) : query.is('target', null)
+  const { data, error } = await query.select('id').maybeSingle()
+  if (error) throw error
+  if (!data) throw new Error('This goal changed on another device. Refresh and try again.')
+}
+
 export async function setProgress(intentionId, value, expectedTotal) {
   const { data, error } = await supabase.rpc('set_intention_progress', {
     target_intention: intentionId,

@@ -83,6 +83,27 @@ try {
       .length,
     0,
   )
+  assert.equal(
+    (
+      await db.query("update intentions set title='Changed by partner' where id=$1 returning id", [
+        goal,
+      ])
+    ).rows.length,
+    0,
+    'partners cannot edit each other’s goals',
+  )
+  await act(b, 'b@example.com')
+  assert.equal(
+    (await db.query("update intentions set title='Updated goal' where id=$1 returning id", [goal]))
+      .rows.length,
+    1,
+    'the owner can edit their goal',
+  )
+  assert.equal(
+    await scalar('select sum(value)::int from progress_entries where intention_id=$1', [goal]),
+    1,
+  )
+  await act(a, 'a@example.com')
   await assert.rejects(db.query('delete from weeks where id=$1', [week]), /permission denied/)
   await assert.rejects(
     db.query('update weeks set next_week_id=$1 where id=$2', [otherWeek, week]),

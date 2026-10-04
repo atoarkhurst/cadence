@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { encodeSnapshot } from './utils/share.js'
 import {
   createEncouragement,
@@ -6,6 +6,7 @@ import {
   createInvitation,
   removeIntention,
   setProgress,
+  updateIntention,
 } from './lib/cadence.js'
 import { useWeek } from './hooks/useWeek.js'
 import { appPath, appUrl } from './lib/paths.js'
@@ -17,6 +18,7 @@ import { isComplete } from './lib/partnership.js'
 import { useEncouragement } from './lib/encouragement-context.js'
 import EncouragementNote from './EncouragementNote.jsx'
 import EncouragementHeart from './EncouragementHeart.jsx'
+import { IntentionActions, IntentionEditor } from './IntentionEditor.jsx'
 
 function WeekReceivedNote({ cheer, notification, userId, onChanged, featured = false }) {
   const date =
@@ -89,6 +91,7 @@ function Week() {
   const [inviteEmail, setInviteEmail] = useState('')
   const [taskOpen, setTaskOpen] = useState(false)
   const [goalOpen, setGoalOpen] = useState(false)
+  const [editing, setEditing] = useState(null)
   const [invitation, setInvitation] = useState(null)
   const [inviteCopied, setInviteCopied] = useState(false)
 
@@ -153,8 +156,9 @@ function Week() {
 
   async function addGoal(event) {
     event.preventDefault()
-    const target = Number.parseInt(goalInput.target, 10)
-    if (!goalInput.name.trim() || !target) return
+    const target = Number(goalInput.target)
+    if (!goalInput.name.trim() || !Number.isSafeInteger(target) || target < 1 || target > 1000000)
+      return
     const id = await createIntention(
       workspace.weekId,
       workspace.user.id,
@@ -192,6 +196,58 @@ function Week() {
   async function deleteItem(id, setter) {
     await removeIntention(id)
     setter((items) => items.filter((item) => item.id !== id))
+  }
+
+  function beginEdit(item, kind) {
+    setEditing({
+      id: item.id,
+      kind,
+      name: item.name,
+      target: String(item.target ?? ''),
+      originalName: item.name,
+      originalTarget: item.target ?? null,
+    })
+  }
+
+  function confirmDelete(item, setter) {
+    if (!window.confirm(`Delete “${item.name}”? Its progress for this week will be removed.`))
+      return
+    saveChange(async () => {
+      await deleteItem(item.id, setter)
+      if (editing?.id === item.id) setEditing(null)
+    })
+  }
+
+  async function saveEdit(event) {
+    event.preventDefault()
+    if (!editing) return
+    const isCount = editing.kind === 'count'
+    const source = isCount ? goals : tasks
+    const original = source.find((item) => item.id === editing.id)
+    if (!original) {
+      setEditing(null)
+      return
+    }
+    const title = editing.name.trim()
+    const target = isCount ? Number(editing.target) : null
+    await saveChange(async () => {
+      await updateIntention(
+        {
+          id: editing.id,
+          kind: editing.kind,
+          name: editing.originalName,
+          target: editing.originalTarget,
+        },
+        workspace.user.id,
+        title,
+        target,
+      )
+      const setter = isCount ? setGoals : setTasks
+      setter((items) =>
+        items.map((item) => (item.id === original.id ? { ...item, name: title, target } : item)),
+      )
+      setEditing(null)
+    })
   }
 
   async function invitePartner(event) {
@@ -316,59 +372,82 @@ function Week() {
           <fieldset className="week-controls" disabled={busy || past}>
             <div className="intention-list">
               {tasks.map((task) => (
-                <div className={`intention-row ${task.done ? 'complete' : ''}`} key={task.id}>
-                  <button
-                    className="check-control"
-                    aria-pressed={task.done}
-                    aria-label={'Mark ' + task.name + (task.done ? ' incomplete' : ' complete')}
-                    onClick={() => saveChange(() => toggleTask(task))}
-                  >
-                    {task.done ? '✓' : ''}
-                  </button>
-                  <span>{task.name}</span>
-                  <button
-                    className="row-delete"
-                    aria-label={'Delete ' + task.name}
-                    onClick={() => saveChange(() => deleteItem(task.id, setTasks))}
-                  >
-                    ×
-                  </button>
-                </div>
+                <Fragment key={task.id}>
+                  <div className={`intention-row ${task.done ? 'complete' : ''}`}>
+                    <button
+                      className="check-control"
+                      aria-pressed={task.done}
+                      aria-label={'Mark ' + task.name + (task.done ? ' incomplete' : ' complete')}
+                      onClick={() => saveChange(() => toggleTask(task))}
+                    >
+                      {task.done ? '✓' : ''}
+                    </button>
+                    <span>{task.name}</span>
+                    {!past && (
+                      <IntentionActions
+                        item={task}
+                        onEdit={() => beginEdit(task, 'one_time')}
+                        onDelete={() => confirmDelete(task, setTasks)}
+                      />
+                    )}
+                  </div>
+                  {editing?.id === task.id && (
+                    <IntentionEditor
+                      draft={editing}
+                      setDraft={setEditing}
+                      onSave={saveEdit}
+                      onCancel={() => setEditing(null)}
+                      busy={busy}
+                    />
+                  )}
+                </Fragment>
               ))}
               {goals.map((goal) => (
-                <div className="rhythm-row" key={goal.id}>
-                  <div className="rhythm-top">
-                    <span>{goal.name}</span>
-                    <strong>
-                      {goal.count} / {goal.target}
-                    </strong>
+                <Fragment key={goal.id}>
+                  <div className="rhythm-row">
+                    <div className="rhythm-top">
+                      <span>{goal.name}</span>
+                      <strong>
+                        {goal.count} / {goal.target}
+                      </strong>
+                    </div>
+                    <div className="mini-track">
+                      <span
+                        style={{ width: `${Math.min(100, (goal.count / goal.target) * 100)}%` }}
+                      />
+                    </div>
+                    <div className="rhythm-actions">
+                      <button
+                        aria-label={'Decrease ' + goal.name}
+                        onClick={() => saveChange(() => adjustGoal(goal, -1))}
+                      >
+                        −
+                      </button>
+                      <button
+                        aria-label={'Increase ' + goal.name}
+                        onClick={() => saveChange(() => adjustGoal(goal, 1))}
+                      >
+                        +
+                      </button>
+                      {!past && (
+                        <IntentionActions
+                          item={goal}
+                          onEdit={() => beginEdit(goal, 'count')}
+                          onDelete={() => confirmDelete(goal, setGoals)}
+                        />
+                      )}
+                    </div>
                   </div>
-                  <div className="mini-track">
-                    <span
-                      style={{ width: `${Math.min(100, (goal.count / goal.target) * 100)}%` }}
+                  {editing?.id === goal.id && (
+                    <IntentionEditor
+                      draft={editing}
+                      setDraft={setEditing}
+                      onSave={saveEdit}
+                      onCancel={() => setEditing(null)}
+                      busy={busy}
                     />
-                  </div>
-                  <div className="rhythm-actions">
-                    <button
-                      aria-label={'Decrease ' + goal.name}
-                      onClick={() => saveChange(() => adjustGoal(goal, -1))}
-                    >
-                      −
-                    </button>
-                    <button
-                      aria-label={'Increase ' + goal.name}
-                      onClick={() => saveChange(() => adjustGoal(goal, 1))}
-                    >
-                      +
-                    </button>
-                    <button
-                      aria-label={'Delete ' + goal.name}
-                      onClick={() => saveChange(() => deleteItem(goal.id, setGoals))}
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
+                  )}
+                </Fragment>
               ))}
             </div>
             {!past && (
@@ -440,31 +519,38 @@ function Week() {
                       saveChange(() => addGoal(event))
                     }}
                   >
-                    <input
-                      value={goalInput.name}
-                      onChange={(event) =>
-                        setGoalInput((item) => ({ ...item, name: event.target.value }))
-                      }
-                      maxLength={160}
-                      aria-label="Repeatable intention"
-                      placeholder="e.g. Read 100 pages"
-                      required
-                      autoFocus
-                    />
-                    <input
-                      className="target-input"
-                      aria-label="Weekly target"
-                      type="number"
-                      min="1"
-                      max="1000000"
-                      value={goalInput.target}
-                      onChange={(event) =>
-                        setGoalInput((item) => ({ ...item, target: event.target.value }))
-                      }
-                      placeholder="Target"
-                      inputMode="numeric"
-                      required
-                    />
+                    <label className="goal-name-field">
+                      <span>Goal name</span>
+                      <input
+                        value={goalInput.name}
+                        onChange={(event) =>
+                          setGoalInput((item) => ({ ...item, name: event.target.value }))
+                        }
+                        maxLength={160}
+                        aria-label="Repeatable intention"
+                        placeholder="e.g. Read 100 pages"
+                        required
+                        autoFocus
+                      />
+                    </label>
+                    <label className="weekly-amount-field">
+                      <span>How many this week?</span>
+                      <input
+                        className="target-input"
+                        aria-label="Weekly target"
+                        type="number"
+                        min="1"
+                        max="1000000"
+                        step="1"
+                        value={goalInput.target}
+                        onChange={(event) =>
+                          setGoalInput((item) => ({ ...item, target: event.target.value }))
+                        }
+                        placeholder="e.g. 4"
+                        inputMode="numeric"
+                        required
+                      />
+                    </label>
                     <button>Add</button>
                   </form>
                 )}

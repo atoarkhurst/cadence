@@ -378,11 +378,6 @@ select {
     color: white;
     font-size: 14px;
   }
-  .row-delete {
-    min-width: 44px;
-    min-height: 44px;
-    color: #85878f;
-  }
   .intention-group h3 {
     font-size: 13px;
   }
@@ -404,24 +399,11 @@ select {
   .rhythm-actions {
     gap: 8px;
   }
-  .rhythm-actions button {
+  .rhythm-actions > button {
     width: 44px;
     height: 44px;
     border-radius: 10px;
     font-size: 18px;
-  }
-  .goal-add {
-    grid-template-columns: minmax(0, 1fr) 80px;
-  }
-  .goal-add > input:first-child {
-    grid-column: 1/-1;
-  }
-  .goal-add .target-input {
-    grid-column: 1;
-    width: 100%;
-  }
-  .goal-add button {
-    grid-column: 2;
   }
   .partner-panel > .hero-copy {
     margin: 12px 0;
