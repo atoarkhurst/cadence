@@ -1,5 +1,5 @@
-// Goal actions live with the weekly plan; Today stays focused on daily progress.
-export function IntentionActions({ item, onEdit, onDelete }) {
+// Shared by Today and This week so goal editing behaves consistently.
+export function IntentionActions({ item, onEdit, onDelete, busy = false }) {
   return (
     <details
       className="intention-actions-menu"
@@ -14,6 +14,7 @@ export function IntentionActions({ item, onEdit, onDelete }) {
       <div className="intention-actions-popover">
         <button
           type="button"
+          disabled={busy}
           onClick={(event) => {
             event.currentTarget.closest('details').open = false
             onEdit()
@@ -23,6 +24,7 @@ export function IntentionActions({ item, onEdit, onDelete }) {
         </button>
         <button
           type="button"
+          disabled={busy}
           onClick={(event) => {
             event.currentTarget.closest('details').open = false
             onDelete()
@@ -42,6 +44,7 @@ export function IntentionEditor({ draft, setDraft, onSave, onCancel, busy }) {
         <span>Goal name</span>
         <input
           aria-label="Edit goal name"
+          disabled={busy}
           value={draft.name}
           onChange={(event) => setDraft({ ...draft, name: event.target.value })}
           maxLength={160}
@@ -54,6 +57,7 @@ export function IntentionEditor({ draft, setDraft, onSave, onCancel, busy }) {
           <span>How many this week?</span>
           <input
             aria-label="Edit weekly amount"
+            disabled={busy}
             type="number"
             min="1"
             max="1000000"

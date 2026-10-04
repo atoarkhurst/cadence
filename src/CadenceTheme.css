@@ -191,6 +191,26 @@ body {
   border-color: var(--cadence-blue);
 }
 .habit-name,
+.daily-shell {
+  --ink: var(--cadence-ink);
+  --muted: var(--cadence-muted);
+  --line: var(--cadence-line);
+  --accent-soft: var(--cadence-blue-soft);
+}
+.daily-shell .habit-item label {
+  min-width: 0;
+}
+.daily-shell .habit-name {
+  overflow-wrap: anywhere;
+}
+.daily-shell .daily-rhythm {
+  flex-wrap: wrap;
+}
+.daily-shell .daily-rhythm > div {
+  flex-basis: calc(100% - 156px);
+  min-width: 120px;
+  overflow-wrap: anywhere;
+}
 .daily-rhythm > div {
   color: var(--cadence-ink);
   font-size: 15px;
@@ -209,7 +229,7 @@ body {
 .habit-item.done .habit-name small {
   text-decoration: none;
 }
-.daily-rhythm button,
+.daily-rhythm > button,
 .daily-rhythm .progress-add {
   width: 44px;
   height: 44px;
@@ -901,7 +921,7 @@ body {
   .daily-rhythm > div {
     font-size: 15px;
   }
-  .daily-rhythm button,
+  .daily-rhythm > button,
   .daily-rhythm .progress-add {
     flex: 0 0 44px;
   }

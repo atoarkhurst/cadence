@@ -4,9 +4,7 @@ import {
   createEncouragement,
   createIntention,
   createInvitation,
-  removeIntention,
   setProgress,
-  updateIntention,
 } from './lib/cadence.js'
 import { useWeek } from './hooks/useWeek.js'
 import { appPath, appUrl } from './lib/paths.js'
@@ -19,6 +17,7 @@ import { useEncouragement } from './lib/encouragement-context.js'
 import EncouragementNote from './EncouragementNote.jsx'
 import EncouragementHeart from './EncouragementHeart.jsx'
 import { IntentionActions, IntentionEditor } from './IntentionEditor.jsx'
+import { useIntentionEditing } from './hooks/useIntentionEditing.js'
 
 function WeekReceivedNote({ cheer, notification, userId, onChanged, featured = false }) {
   const date =
@@ -91,7 +90,14 @@ function Week() {
   const [inviteEmail, setInviteEmail] = useState('')
   const [taskOpen, setTaskOpen] = useState(false)
   const [goalOpen, setGoalOpen] = useState(false)
-  const [editing, setEditing] = useState(null)
+  const { editing, setEditing, beginEdit, confirmDelete, saveEdit } = useIntentionEditing({
+    workspace,
+    tasks,
+    goals,
+    setTasks,
+    setGoals,
+    saveChange,
+  })
   const [invitation, setInvitation] = useState(null)
   const [inviteCopied, setInviteCopied] = useState(false)
 
@@ -191,63 +197,6 @@ function Week() {
     const count = Math.max(0, goal.count + change)
     await setProgress(goal.id, count, goal.count)
     setGoals((items) => items.map((item) => (item.id === goal.id ? { ...item, count } : item)))
-  }
-
-  async function deleteItem(id, setter) {
-    await removeIntention(id)
-    setter((items) => items.filter((item) => item.id !== id))
-  }
-
-  function beginEdit(item, kind) {
-    setEditing({
-      id: item.id,
-      kind,
-      name: item.name,
-      target: String(item.target ?? ''),
-      originalName: item.name,
-      originalTarget: item.target ?? null,
-    })
-  }
-
-  function confirmDelete(item, setter) {
-    if (!window.confirm(`Delete “${item.name}”? Its progress for this week will be removed.`))
-      return
-    saveChange(async () => {
-      await deleteItem(item.id, setter)
-      if (editing?.id === item.id) setEditing(null)
-    })
-  }
-
-  async function saveEdit(event) {
-    event.preventDefault()
-    if (!editing) return
-    const isCount = editing.kind === 'count'
-    const source = isCount ? goals : tasks
-    const original = source.find((item) => item.id === editing.id)
-    if (!original) {
-      setEditing(null)
-      return
-    }
-    const title = editing.name.trim()
-    const target = isCount ? Number(editing.target) : null
-    await saveChange(async () => {
-      await updateIntention(
-        {
-          id: editing.id,
-          kind: editing.kind,
-          name: editing.originalName,
-          target: editing.originalTarget,
-        },
-        workspace.user.id,
-        title,
-        target,
-      )
-      const setter = isCount ? setGoals : setTasks
-      setter((items) =>
-        items.map((item) => (item.id === original.id ? { ...item, name: title, target } : item)),
-      )
-      setEditing(null)
-    })
   }
 
   async function invitePartner(event) {

@@ -286,7 +286,7 @@ select {
     padding: 12px;
     gap: 6px;
   }
-  .daily-rhythm button,
+  .daily-rhythm > button,
   .daily-rhythm .progress-add {
     width: 44px;
     height: 44px;

@@ -257,11 +257,11 @@ body:has(.week-studio) {
   color: var(--muted);
   text-decoration-color: #a4aec0;
 }
-.week-studio .intention-actions-menu {
+:is(.week-studio, .daily-shell) .intention-actions-menu {
   position: relative;
   flex: 0 0 44px;
 }
-.week-studio .intention-actions-menu summary {
+:is(.week-studio, .daily-shell) .intention-actions-menu summary {
   display: grid;
   place-items: center;
   width: 44px;
@@ -273,15 +273,15 @@ body:has(.week-studio) {
   line-height: 1;
   list-style: none;
 }
-.week-studio .intention-actions-menu summary::-webkit-details-marker {
+:is(.week-studio, .daily-shell) .intention-actions-menu summary::-webkit-details-marker {
   display: none;
 }
-.week-studio .intention-actions-menu summary:hover,
-.week-studio .intention-actions-menu[open] summary {
+:is(.week-studio, .daily-shell) .intention-actions-menu summary:hover,
+:is(.week-studio, .daily-shell) .intention-actions-menu[open] summary {
   background: var(--accent-soft);
   color: var(--accent);
 }
-.week-studio .intention-actions-popover {
+:is(.week-studio, .daily-shell) .intention-actions-popover {
   position: absolute;
   z-index: 5;
   top: calc(100% + 4px);
@@ -293,7 +293,7 @@ body:has(.week-studio) {
   background: #fff;
   box-shadow: 0 10px 28px #17243b1a;
 }
-.week-studio .intention-actions-popover button {
+:is(.week-studio, .daily-shell) .intention-actions-popover button {
   display: block;
   width: 100%;
   min-height: 40px;
@@ -306,13 +306,13 @@ body:has(.week-studio) {
   text-align: left;
   cursor: pointer;
 }
-.week-studio .intention-actions-popover button:hover {
+:is(.week-studio, .daily-shell) .intention-actions-popover button:hover {
   background: var(--accent-soft);
 }
-.week-studio .intention-actions-popover button:last-child {
+:is(.week-studio, .daily-shell) .intention-actions-popover button:last-child {
   color: #87504e;
 }
-.week-studio .intention-editor {
+:is(.week-studio, .daily-shell) .intention-editor {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(140px, 170px);
   gap: 12px;
@@ -322,10 +322,10 @@ body:has(.week-studio) {
   border-radius: 8px;
   background: #f7f9fe;
 }
-.week-studio .intention-editor > label:first-child {
+:is(.week-studio, .daily-shell) .intention-editor > label:first-child {
   grid-column: 1 / -1;
 }
-.week-studio .intention-editor label,
+:is(.week-studio, .daily-shell) .intention-editor label,
 .goal-name-field,
 .weekly-amount-field {
   display: flex;
@@ -333,7 +333,7 @@ body:has(.week-studio) {
   gap: 6px;
   min-width: 0;
 }
-.week-studio .intention-editor label > span,
+:is(.week-studio, .daily-shell) .intention-editor label > span,
 .goal-name-field > span,
 .weekly-amount-field > span {
   color: var(--muted);
@@ -341,7 +341,7 @@ body:has(.week-studio) {
   font-weight: 600;
   white-space: nowrap;
 }
-.week-studio .intention-editor input {
+:is(.week-studio, .daily-shell) .intention-editor input {
   width: 100%;
   min-width: 0;
   min-height: 44px;
@@ -353,13 +353,13 @@ body:has(.week-studio) {
   font: inherit;
   font-size: 15px;
 }
-.week-studio .intention-editor-actions {
+:is(.week-studio, .daily-shell) .intention-editor-actions {
   grid-column: 1 / -1;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
 }
-.week-studio .intention-editor-actions button {
+:is(.week-studio, .daily-shell) .intention-editor-actions button {
   min-height: 44px;
   padding: 8px 14px;
   border: 0;
@@ -367,11 +367,11 @@ body:has(.week-studio) {
   font-size: 12px;
   cursor: pointer;
 }
-.week-studio .intention-editor-actions button:first-child {
+:is(.week-studio, .daily-shell) .intention-editor-actions button:first-child {
   background: var(--accent);
   color: #fff;
 }
-.week-studio .intention-editor-actions button:last-child {
+:is(.week-studio, .daily-shell) .intention-editor-actions button:last-child {
   background: transparent;
   color: var(--muted);
 }
@@ -756,7 +756,7 @@ body:has(.week-studio) {
     grid-column: 2;
     align-self: end;
   }
-  .week-studio .intention-editor {
+  :is(.week-studio, .daily-shell) .intention-editor {
     grid-template-columns: minmax(0, 1fr);
   }
   .week-studio .partner-goal > div:first-child {

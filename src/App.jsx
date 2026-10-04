@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { createIntention, setProgress } from './lib/cadence.js'
 import { useWeek } from './hooks/useWeek.js'
 import { appPath } from './lib/paths.js'
 import './App.css'
 import { weekLabel } from './lib/weeks.js'
 import { isComplete } from './lib/partnership.js'
+import { IntentionActions, IntentionEditor } from './IntentionEditor.jsx'
+import { useIntentionEditing } from './hooks/useIntentionEditing.js'
 
 function App() {
   const { workspace, tasks, goals, busy, status, error, setTasks, setGoals, saveChange } = useWeek()
@@ -12,6 +14,14 @@ function App() {
   const [targetInput, setTargetInput] = useState('')
   const [composerOpen, setComposerOpen] = useState(false)
   const [intentionKind, setIntentionKind] = useState('one_time')
+  const { editing, setEditing, beginEdit, confirmDelete, saveEdit } = useIntentionEditing({
+    workspace,
+    tasks,
+    goals,
+    setTasks,
+    setGoals,
+    saveChange,
+  })
 
   async function toggleTask(task) {
     const done = !task.done
@@ -123,50 +133,81 @@ function App() {
           )}
           <ul className="habit-list">
             {tasks.map((task) => (
-              <li key={task.id} className={`habit-item ${task.done ? 'done' : ''}`}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={task.done}
-                    disabled={busy}
-                    onChange={() => saveChange(() => toggleTask(task))}
+              <li key={task.id} className="daily-task-entry">
+                <div className={`habit-item ${task.done ? 'done' : ''}`}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={task.done}
+                      disabled={busy}
+                      onChange={() => saveChange(() => toggleTask(task))}
+                    />
+                    <span className="habit-name">
+                      {task.name}
+                      <small>Finish once</small>
+                    </span>
+                  </label>
+                  <IntentionActions
+                    item={task}
+                    busy={busy}
+                    onEdit={() => beginEdit(task, 'one_time')}
+                    onDelete={() => confirmDelete(task, setTasks)}
                   />
-                  <span className="habit-name">
-                    {task.name}
-                    <small>Finish once</small>
-                  </span>
-                </label>
+                </div>
+                {editing?.id === task.id && (
+                  <IntentionEditor
+                    draft={editing}
+                    setDraft={setEditing}
+                    onSave={saveEdit}
+                    onCancel={() => setEditing(null)}
+                    busy={busy}
+                  />
+                )}
               </li>
             ))}
           </ul>
           <div className="daily-rhythms">
             {goals.map((goal) => (
-              <div
-                className={`daily-rhythm ${goal.count >= goal.target ? 'done' : ''}`}
-                key={goal.id}
-              >
-                <div>
-                  <span>{goal.name}</span>
-                  <small>
-                    Build a rhythm · {goal.count} of {goal.target}
-                  </small>
+              <Fragment key={goal.id}>
+                <div className={`daily-rhythm ${goal.count >= goal.target ? 'done' : ''}`}>
+                  <div>
+                    <span>{goal.name}</span>
+                    <small>
+                      Build a rhythm · {goal.count} of {goal.target}
+                    </small>
+                  </div>
+                  <button
+                    aria-label={'Decrease ' + goal.name}
+                    onClick={() => saveChange(() => adjustGoal(goal, -1))}
+                    disabled={busy || goal.count === 0}
+                  >
+                    −
+                  </button>
+                  <button
+                    className="progress-add"
+                    disabled={busy}
+                    aria-label={'Increase ' + goal.name}
+                    onClick={() => saveChange(() => adjustGoal(goal, 1))}
+                  >
+                    +1
+                  </button>
+                  <IntentionActions
+                    item={goal}
+                    busy={busy}
+                    onEdit={() => beginEdit(goal, 'count')}
+                    onDelete={() => confirmDelete(goal, setGoals)}
+                  />
                 </div>
-                <button
-                  aria-label={'Decrease ' + goal.name}
-                  onClick={() => saveChange(() => adjustGoal(goal, -1))}
-                  disabled={busy || goal.count === 0}
-                >
-                  −
-                </button>
-                <button
-                  className="progress-add"
-                  disabled={busy}
-                  aria-label={'Increase ' + goal.name}
-                  onClick={() => saveChange(() => adjustGoal(goal, 1))}
-                >
-                  +1
-                </button>
-              </div>
+                {editing?.id === goal.id && (
+                  <IntentionEditor
+                    draft={editing}
+                    setDraft={setEditing}
+                    onSave={saveEdit}
+                    onCancel={() => setEditing(null)}
+                    busy={busy}
+                  />
+                )}
+              </Fragment>
             ))}
           </div>
           <div className="daily-actions">
