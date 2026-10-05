@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import App from './App.jsx'
+import { MemoryRouter } from 'react-router-dom'
 import { useWeek } from './hooks/useWeek.js'
 import { createIntention, updateIntention } from './lib/cadence.js'
 
@@ -39,7 +40,11 @@ function renderToday({ tasks = [], goals = [] } = {}) {
     saveChange: async (action) => action(),
   })
   createIntention.mockResolvedValue('new-intention')
-  render(<App />)
+  render(
+    <MemoryRouter>
+      <App />
+    </MemoryRouter>,
+  )
   return { setTasks, setGoals }
 }
 

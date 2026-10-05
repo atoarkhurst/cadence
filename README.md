@@ -38,19 +38,20 @@ npm audit
 
 ## Find your way around
 
-| Location                                 | Responsibility                                                     |
-| ---------------------------------------- | ------------------------------------------------------------------ |
-| `src/main.jsx`, `src/Root.jsx`           | Routes and shared navigation                                       |
-| `src/App.jsx`, `src/Week.jsx`            | Daily and weekly screen composition                                |
-| `src/hooks/useWeek.js`                   | Shared loading, refresh, save lifecycle, stale-response protection |
-| `src/lib/cadence.js`                     | Database reads and domain actions                                  |
-| `src/Review.jsx`                         | Weekly reflection and next-week planning                           |
-| `src/Auth.jsx`, account components       | Sign-in, recovery, profile, partner, notification settings         |
-| `src/EncouragementProvider.jsx`          | Inbox loading, unread state, account isolation                     |
-| `supabase/migrations/`                   | Versioned schema, permissions, transactional functions             |
-| `supabase/functions/encouragement-push/` | Server-only delivery                                               |
-| `scripts/test-*.mjs`                     | Isolated database and service-worker regression tests              |
-| `src/**/*.ui.test.jsx`                   | React behavior tests, not real email/browser delivery tests        |
+| Location                                               | Responsibility                                                                 |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `src/main.jsx`, `src/Root.jsx`                         | Routes and shared navigation                                                   |
+| `src/App.jsx`, `src/Week.jsx`                          | Daily and weekly screen composition                                            |
+| `src/hooks/useWeek.js`                                 | Dashboard subscriptions and background refresh                                 |
+| `src/lib/week-store.js`, `src/hooks/useWeekSession.js` | Session cache, account isolation, save lifecycle and stale-response protection |
+| `src/lib/cadence.js`                                   | Database reads and domain actions                                              |
+| `src/Review.jsx`                                       | Weekly reflection and next-week planning                                       |
+| `src/Auth.jsx`, account components                     | Sign-in, recovery, profile, partner, notification settings                     |
+| `src/EncouragementProvider.jsx`                        | Inbox loading, unread state, account isolation                                 |
+| `supabase/migrations/`                                 | Versioned schema, permissions, transactional functions                         |
+| `supabase/functions/encouragement-push/`               | Server-only delivery                                                           |
+| `scripts/test-*.mjs`                                   | Isolated database and service-worker regression tests                          |
+| `src/**/*.ui.test.jsx`                                 | React behavior tests, not real email/browser delivery tests                    |
 
 ## Learn by tracing one goal update
 
@@ -58,7 +59,9 @@ npm audit
 2. `useWeek.saveChange` marks the screen busy and invalidates older reads.
 3. `setProgress` calls `set_intention_progress` with the intended total, last-seen total, and a unique request ID.
 4. PostgreSQL verifies ownership and membership, locks the goal, checks for concurrent edits, and appends a correction.
-5. The hook reloads server truth. Both screens read the same original entries plus corrections.
+5. The shared store reloads server truth. Both screens read the same original entries plus corrections, even if the user navigates during the save.
+
+Today and This week reuse an in-memory weekly snapshot when navigating with React Router. Reads within 10 seconds reuse the latest result; older snapshots stay visible during background refresh. Focus and visibility checks plus the 15-second timer keep partner progress current. Concurrent reads are deduplicated. The cache is never persisted to disk, clears when the signed-in account changes, and checks the shared schedule before reusing the current week. Partner, schedule, profile, and review changes explicitly invalidate it. Historical weeks have separate entries and URL changes remount their forms to avoid mixing drafts.
 
 This separation matters: React displays state; the data module describes requests; PostgreSQL enforces authorization and consistency. Hidden buttons are not a security boundary.
 

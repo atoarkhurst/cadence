@@ -3,7 +3,8 @@ import { currentWeek, nextWeek, validWeek } from './weeks.js'
 
 export async function loadCurrentWeek(startsOn = null) {
   if (startsOn && !validWeek(startsOn)) throw new Error('Choose a valid week.')
-  const { data: auth } = await supabase.auth.getUser()
+  const { data: auth, error: authError } = await supabase.auth.getUser()
+  if (authError) throw authError
   const user = auth.user
   if (!user) return { signedOut: true }
 
@@ -11,19 +12,30 @@ export async function loadCurrentWeek(startsOn = null) {
   if (error) throw error
   const membership = { partnership_id: partnershipId }
 
-  const { data: schedule, error: scheduleError } = await supabase
-    .from('week_schedules')
-    .select('*')
-    .eq('partnership_id', membership.partnership_id)
-    .maybeSingle()
+  // These reads depend on the partnership, but not on one another.
+  const [scheduleResult, historyResult, membersResult] = await Promise.all([
+    supabase
+      .from('week_schedules')
+      .select('*')
+      .eq('partnership_id', membership.partnership_id)
+      .maybeSingle(),
+    supabase
+      .from('weeks')
+      .select('*')
+      .eq('partnership_id', membership.partnership_id)
+      .order('starts_on', { ascending: false }),
+    supabase
+      .from('partnership_members')
+      .select('user_id')
+      .eq('partnership_id', membership.partnership_id),
+  ])
+  const { data: schedule, error: scheduleError } = scheduleResult
   if (scheduleError && !['PGRST205', '42P01'].includes(scheduleError.code)) throw scheduleError
   const currentStartsOn = currentWeek(schedule)
-  const { data: history, error: historyError } = await supabase
-    .from('weeks')
-    .select('*')
-    .eq('partnership_id', membership.partnership_id)
-    .order('starts_on', { ascending: false })
+  const { data: history, error: historyError } = historyResult
   if (historyError) throw historyError
+  const { data: members, error: memberError } = membersResult
+  if (memberError) throw memberError
   startsOn ||= currentStartsOn
   let week =
     history.find((item) => item.starts_on === startsOn) ||
@@ -64,12 +76,31 @@ export async function loadCurrentWeek(startsOn = null) {
     history.find((item) => item.id === week.next_week_id)?.starts_on || nextWeek(startsOn)
   const previousStartsOn = history.find((item) => item.starts_on < currentStartsOn)?.starts_on
 
-  const { data: intentions, error: intentionError } = await supabase
-    .from('intentions')
-    .select('*, progress_entries(value), progress_adjustments(value)')
-    .eq('week_id', weekId)
-    .order('sort_order')
+  const [intentionResult, profileResult, cheerResult] = await Promise.all([
+    supabase
+      .from('intentions')
+      .select('*, progress_entries(value), progress_adjustments(value)')
+      .eq('week_id', weekId)
+      .order('sort_order'),
+    supabase
+      .from('profiles')
+      .select('id, display_name')
+      .in(
+        'id',
+        members.map((item) => item.user_id),
+      ),
+    supabase
+      .from('encouragements')
+      .select('*, encouragement_reactions(user_id)')
+      .eq('week_id', weekId)
+      .order('created_at', { ascending: false }),
+  ])
+  const { data: intentions, error: intentionError } = intentionResult
   if (intentionError) throw intentionError
+  const { data: profiles, error: profileError } = profileResult
+  if (profileError) throw profileError
+  const { data: encouragements, error: cheerError } = cheerResult
+  if (cheerError) throw cheerError
   const shaped = intentions.map((item) => {
     const count = [...item.progress_entries, ...item.progress_adjustments].reduce(
       (sum, entry) => sum + entry.value,
@@ -85,24 +116,7 @@ export async function loadCurrentWeek(startsOn = null) {
       kind: item.kind,
     }
   })
-  const { data: members, error: memberError } = await supabase
-    .from('partnership_members')
-    .select('user_id')
-    .eq('partnership_id', membership.partnership_id)
-  if (memberError) throw memberError
-  const memberIds = members.map((item) => item.user_id)
-  const { data: profiles, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, display_name')
-    .in('id', memberIds)
-  if (profileError) throw profileError
   const partner = profiles.find((profile) => profile.id !== user.id) ?? null
-  const { data: encouragements, error: cheerError } = await supabase
-    .from('encouragements')
-    .select('*, encouragement_reactions(user_id)')
-    .eq('week_id', weekId)
-    .order('created_at', { ascending: false })
-  if (cheerError) throw cheerError
   const profileMap = Object.fromEntries(
     profiles.map((profile) => [profile.id, profile.display_name]),
   )

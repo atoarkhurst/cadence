@@ -1,3 +1,4 @@
+import { Link, useSearchParams } from 'react-router-dom'
 import { Fragment, useEffect, useState } from 'react'
 import { encodeSnapshot } from './utils/share.js'
 import {
@@ -7,7 +8,7 @@ import {
   setProgress,
 } from './lib/cadence.js'
 import { useWeek } from './hooks/useWeek.js'
-import { appPath, appUrl } from './lib/paths.js'
+import { appUrl } from './lib/paths.js'
 import './Week.css'
 import PartnerInvitations from './PartnerInvitations.jsx'
 import { dayNames, weekLabel } from './lib/weeks.js'
@@ -62,8 +63,13 @@ function SentNote({ cheer, partner }) {
 }
 
 function Week() {
+  const [params] = useSearchParams()
+  const requestedWeek = params.get('week')
+  return <WeeklyPlan key={requestedWeek || 'current'} requestedWeek={requestedWeek} />
+}
+
+function WeeklyPlan({ requestedWeek }) {
   const { items: notifications } = useEncouragement()
-  const requestedWeek = new URLSearchParams(window.location.search).get('week')
 
   const {
     workspace,
@@ -226,9 +232,9 @@ function Week() {
     return (
       <main className="week-shell week-studio">
         <h1>Sign in to see your week.</h1>
-        <a className="share-btn" href={appPath('/signin')}>
+        <Link className="share-btn" to={'/signin'}>
           Sign in
-        </a>
+        </Link>
       </main>
     )
   if (status === 'error')
@@ -268,13 +274,13 @@ function Week() {
           <summary>Week options</summary>
           <div className="week-tools">
             {!past && !future && workspace.previousStartsOn && (
-              <a href={appPath('/review?week=' + workspace.previousStartsOn)}>Review last week</a>
+              <Link to={'/review?week=' + workspace.previousStartsOn}>Review last week</Link>
             )}
-            <a href={appPath('/review?week=' + selectedWeek)}>
+            <Link to={'/review?week=' + selectedWeek}>
               {past ? 'View review & history' : 'Review this week'}
-            </a>
-            <a href={appPath('/week?week=' + workspace.nextStartsOn)}>Plan the following week →</a>
-            <a href={appPath('/review')}>History</a>
+            </Link>
+            <Link to={'/week?week=' + workspace.nextStartsOn}>Plan the following week →</Link>
+            <Link to={'/review'}>History</Link>
             <button className="share-btn" onClick={share}>
               {copied ? 'Link copied ✓' : 'Share a snapshot ↗'}
             </button>
@@ -282,9 +288,9 @@ function Week() {
         </details>
       </header>
       {requestedWeek && (
-        <a className="week-back" href={appPath('/week')}>
+        <Link className="week-back" to={'/week'}>
           ← Back to this week
-        </a>
+        </Link>
       )}
       {past && (
         <p className="week-notice">
@@ -729,12 +735,12 @@ function Week() {
         <span>Next check-in</span>
         <strong>{dayNames[workspace.schedule?.start_day ?? 1]}</strong>
         <p>Ten minutes to celebrate, reflect, and choose what comes next.</p>
-        <a
+        <Link
           className="review-primary"
-          href={appPath('/review?week=' + (workspace.previousStartsOn || selectedWeek))}
+          to={'/review?week=' + (workspace.previousStartsOn || selectedWeek)}
         >
           Open your weekly check-in →
-        </a>
+        </Link>
       </footer>
     </main>
   )

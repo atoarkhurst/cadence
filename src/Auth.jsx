@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from './lib/supabase.js'
-import { appPath, appUrl } from './lib/paths.js'
+import { appUrl } from './lib/paths.js'
 import './Auth.css'
 import './Account.css'
 import WeekSchedule from './WeekSchedule.jsx'
@@ -190,13 +190,10 @@ export default function Auth() {
             <h1>Your account</h1>
             <p>Manage your profile, shared week, and notifications.</p>
           </div>
-          <a
-            className="account-week-link"
-            href={appPath(invitation ? '/invite/' + invitation : '/week')}
-          >
+          <Link className="account-week-link" to={invitation ? '/invite/' + invitation : '/week'}>
             {invitation ? 'Continue invitation' : 'Back to your week'}{' '}
             <span aria-hidden="true">↗</span>
-          </a>
+          </Link>
         </header>
         <div className="account-layout">
           <aside className="account-sidebar">

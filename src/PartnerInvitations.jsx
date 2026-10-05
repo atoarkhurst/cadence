@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase.js'
 import { acceptInvitation } from './lib/cadence.js'
+import { weekStore } from './lib/week-store.js'
 
 export default function PartnerInvitations({ user, onAccepted }) {
   const [invites, setInvites] = useState([])
@@ -48,6 +49,7 @@ export default function PartnerInvitations({ user, onAccepted }) {
     setMessage('')
     try {
       await acceptInvitation(token)
+      weekStore.invalidate()
       if (localStorage.getItem('cadence-pending-invite') === token)
         localStorage.removeItem('cadence-pending-invite')
       setInvites((items) => items.filter((item) => item.token !== token))

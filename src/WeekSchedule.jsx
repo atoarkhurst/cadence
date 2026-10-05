@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { loadCurrentWeek } from './lib/cadence.js'
 import { supabase } from './lib/supabase.js'
 import { dayNames, upcomingStart, weekLabel } from './lib/weeks.js'
+import { weekStore } from './lib/week-store.js'
 
 export default function WeekSchedule() {
   const [workspace, setWorkspace] = useState(null)
@@ -40,6 +41,7 @@ export default function WeekSchedule() {
         shared_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       })
       if (error) throw error
+      weekStore.invalidate()
       setWorkspace(await loadCurrentWeek())
       setSaved('Your shared schedule is saved. The new cycle is ' + weekLabel(data) + '.')
     } catch (e) {

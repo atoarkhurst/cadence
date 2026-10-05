@@ -4,11 +4,13 @@ import './Root.css'
 import './Encouragement.css'
 import EncouragementProvider from './EncouragementProvider.jsx'
 import { useEncouragement } from './lib/encouragement-context.js'
+import { useWeekSession } from './hooks/useWeekSession.js'
 
 // Root is a layout route: it renders the nav, then <Outlet> which React Router
 // fills with whichever child route matched. /share is registered as a sibling
 // route (not a child) so it renders without this nav.
 function Root() {
+  useWeekSession()
   return (
     <EncouragementProvider>
       <Navigation />
@@ -116,7 +118,7 @@ function Navigation() {
           </div>
         </div>
       </nav>
-      <Outlet />
+      <Outlet key={userId || 'signed-out'} />
     </>
   )
 }

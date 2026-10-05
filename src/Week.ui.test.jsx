@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import Week from './Week.jsx'
+import { MemoryRouter } from 'react-router-dom'
 import { useWeek } from './hooks/useWeek.js'
 import { updateIntention } from './lib/cadence.js'
 
@@ -44,7 +45,11 @@ function renderWeek(past = false, cheers = null, partnerItems = [], ownGoals = [
     refreshWeek: vi.fn(),
     saveChange: async (action) => action(),
   })
-  return render(<Week />)
+  return render(
+    <MemoryRouter>
+      <Week />
+    </MemoryRouter>,
+  )
 }
 
 test('secondary navigation remains available in the week disclosure', () => {

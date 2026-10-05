@@ -1,10 +1,11 @@
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase.js'
 import { loadCurrentWeek } from './lib/cadence.js'
 import { isComplete } from './lib/partnership.js'
 import { validWeek, weekLabel } from './lib/weeks.js'
-import { appPath } from './lib/paths.js'
 import './Review.css'
+import { weekStore } from './lib/week-store.js'
 
 function ProgressSummary({ name, items }) {
   return (
@@ -36,7 +37,13 @@ function ProgressSummary({ name, items }) {
 }
 
 export default function Review() {
-  const requested = new URLSearchParams(window.location.search).get('week')
+  const [params] = useSearchParams()
+  const requested = params.get('week')
+  return <ReviewWeek key={requested || 'latest'} requested={requested} />
+}
+
+function ReviewWeek({ requested }) {
+  const navigate = useNavigate()
 
   const [workspace, setWorkspace] = useState(null)
   const start = workspace?.startsOn
@@ -142,6 +149,7 @@ export default function Review() {
         new_intentions: additions,
       })
       if (saveError) throw saveError
+      weekStore.invalidate()
       const result = await supabase
         .from('weekly_reviews')
         .select('*')
@@ -170,7 +178,7 @@ export default function Review() {
     return (
       <main className="review-shell">
         <h1>Your shared weekly ritual.</h1>
-        <a href={appPath('/signin')}>Sign in to continue</a>
+        <Link to={'/signin'}>Sign in to continue</Link>
       </main>
     )
   if (status === 'error')
@@ -178,7 +186,7 @@ export default function Review() {
       <main className="review-shell">
         <h1>We couldn’t open this review yet.</h1>
         <p role="alert">{error}</p>
-        <a href={appPath('/week')}>Back to your week</a>
+        <Link to={'/week'}>Back to your week</Link>
       </main>
     )
   const own = [...workspace.tasks, ...workspace.goals]
@@ -190,9 +198,9 @@ export default function Review() {
 
   return (
     <main className="review-shell">
-      <a className="review-back" href={appPath('/week?week=' + start)}>
+      <Link className="review-back" to={'/week?week=' + start}>
         ← Back to this week’s intentions
-      </a>
+      </Link>
       <header className="review-header">
         <p className="eyebrow">{weekLabel(start)}</p>
         <h1>Weekly check-in</h1>
@@ -204,7 +212,7 @@ export default function Review() {
           id="review-week"
           value={start}
           onChange={(event) => {
-            window.location.href = appPath('/review?week=' + event.target.value)
+            navigate('/review?week=' + event.target.value)
           }}
         >
           {history.map((week) => (
@@ -248,9 +256,9 @@ export default function Review() {
             Your original goals and progress remain in this week’s history. Your selected intentions
             were copied into the following plan with fresh progress.
           </p>
-          <a className="review-primary" href={appPath('/week?week=' + destinationStart)}>
+          <Link className="review-primary" to={'/week?week=' + destinationStart}>
             Open the following plan →
-          </a>
+          </Link>
         </section>
       ) : future ? (
         <section className="review-card">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase.js'
 import { cleanDisplayName } from './lib/profile.js'
+import { weekStore } from './lib/week-store.js'
 
 export default function ProfileSettings({ userId }) {
   const [name, setName] = useState('')
@@ -55,6 +56,7 @@ export default function ProfileSettings({ userId }) {
         .select('display_name')
         .single()
       if (error) throw error
+      weekStore.invalidate()
       setName(data.display_name)
       setSavedName(data.display_name)
       setMessage('Name saved. Your partner will see this name, too.')

@@ -1,7 +1,7 @@
+import { Link } from 'react-router-dom'
 import { Fragment, useState } from 'react'
 import { createIntention, setProgress } from './lib/cadence.js'
 import { useWeek } from './hooks/useWeek.js'
-import { appPath } from './lib/paths.js'
 import './App.css'
 import { weekLabel } from './lib/weeks.js'
 import { isComplete } from './lib/partnership.js'
@@ -64,7 +64,7 @@ function App() {
     return (
       <main className="daily-shell">
         <h1>Sign in to see your day.</h1>
-        <a href={appPath('/signin')}>Sign in</a>
+        <Link to={'/signin'}>Sign in</Link>
       </main>
     )
   if (status === 'error')
@@ -105,12 +105,9 @@ function App() {
         </div>
       </header>
       {workspace.previousStartsOn && (
-        <a
-          className="daily-review-link"
-          href={appPath('/review?week=' + workspace.previousStartsOn)}
-        >
+        <Link className="daily-review-link" to={'/review?week=' + workspace.previousStartsOn}>
           Review last week →
-        </a>
+        </Link>
       )}
       {error && <p role="alert">{error}</p>}
       {busy && <p role="status">Saving…</p>}
@@ -220,9 +217,9 @@ function App() {
             >
               {composerOpen ? '− Close goal entry' : '+ Add an intention'}
             </button>
-            <a className="daily-full-week" href={appPath('/week')}>
+            <Link className="daily-full-week" to={'/week'}>
               See the full week →
-            </a>
+            </Link>
           </div>
           {composerOpen && (
             <div id="daily-intention-composer" className="daily-intention-composer">
@@ -318,9 +315,9 @@ function App() {
                 ? 'See how their week is moving and leave a quick note of encouragement.'
                 : 'Invite someone you trust to share the weekly ritual with you.'}
             </p>
-            <a href={appPath('/week')}>
+            <Link to={'/week'}>
               {workspace.partner ? 'See your shared week' : 'Invite a partner'}
-            </a>
+            </Link>
           </section>
         </aside>
       </div>

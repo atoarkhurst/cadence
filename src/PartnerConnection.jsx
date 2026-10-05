@@ -1,7 +1,8 @@
+import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase.js'
 import { choosePartnership } from './lib/partnership.js'
-import { appPath } from './lib/paths.js'
+import { weekStore } from './lib/week-store.js'
 
 export default function PartnerConnection({ userId }) {
   const [connection, setConnection] = useState(null)
@@ -53,6 +54,7 @@ export default function PartnerConnection({ userId }) {
         target_partnership: connection.id,
       })
       if (error) throw error
+      weekStore.invalidate()
       localStorage.removeItem('cadence-pending-invite')
       setConnection(null)
       setConfirming(false)
@@ -111,7 +113,7 @@ export default function PartnerConnection({ userId }) {
                 ? 'You’re disconnected. Your goals and progress are still yours.'
                 : 'No partner connected yet.'}
             </p>
-            <a href={appPath('/week')}>Invite a partner from your week →</a>
+            <Link to={'/week'}>Invite a partner from your week →</Link>
           </>
         )
       )}

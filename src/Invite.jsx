@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { acceptInvitation } from './lib/cadence.js'
 import { supabase } from './lib/supabase.js'
-import { appPath } from './lib/paths.js'
 import './Auth.css'
+import { weekStore } from './lib/week-store.js'
 
 export default function Invite() {
   const { token } = useParams()
@@ -33,6 +33,7 @@ export default function Invite() {
     setBusy(true)
     try {
       await acceptInvitation(token)
+      weekStore.invalidate()
       localStorage.removeItem('cadence-pending-invite')
       setAccepted(true)
       setMessage('You’re connected. Open your shared week to see each other’s progress.')
@@ -49,24 +50,21 @@ export default function Invite() {
         <h1>{accepted ? 'You’re in it together.' : 'Join a shared week.'}</h1>
         <p role="status">{message}</p>
         {accepted ? (
-          <a className="auth-primary" href={appPath('/week')}>
+          <Link className="auth-primary" to={'/week'}>
             Open shared week
-          </a>
+          </Link>
         ) : user ? (
           <>
             <button className="auth-primary" disabled={busy} onClick={accept}>
               {busy ? 'Connecting…' : 'Accept invitation'}
             </button>
-            <a href={appPath('/signin')}>Wrong account? Switch accounts</a>
+            <Link to={'/signin'}>Wrong account? Switch accounts</Link>
           </>
         ) : (
           !busy && (
-            <a
-              className="auth-primary"
-              href={appPath('/signin?invite=' + encodeURIComponent(token))}
-            >
+            <Link className="auth-primary" to={'/signin?invite=' + encodeURIComponent(token)}>
               Sign in to continue
-            </a>
+            </Link>
           )
         )}
       </section>
