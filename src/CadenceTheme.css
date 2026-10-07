@@ -201,6 +201,8 @@ body {
   min-width: 0;
 }
 .daily-shell .habit-name {
+  font-size: 15px;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 .daily-shell .daily-rhythm {
