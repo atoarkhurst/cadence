@@ -72,6 +72,30 @@
   margin-top: 10px;
   cursor: pointer;
 }
+.auth-card .auth-primary {
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+.auth-card .auth-primary:not(:disabled):hover {
+  background: #1d3fae;
+  box-shadow: 0 4px 12px rgba(41, 78, 203, 0.18);
+}
+.auth-card .auth-primary:not(:disabled):active {
+  background: #17348f;
+  box-shadow: none;
+  transform: translateY(1px);
+}
+.auth-card .auth-primary:focus-visible {
+  outline: 2px solid #294ecb;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-card .auth-primary {
+    transition: none;
+  }
+}
 .auth-secondary {
   width: 100%;
   border: 0;

@@ -10,6 +10,7 @@ export function OutgoingInvitations({ userId, refreshKey = 0, partnershipId = nu
   const [items, setItems] = useState([])
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
+  const [statusToken, setStatusToken] = useState(null)
   const [busy, setBusy] = useState(false)
   const [confirm, setConfirm] = useState(null)
   const load = useCallback(async () => {
@@ -57,6 +58,7 @@ export function OutgoingInvitations({ userId, refreshKey = 0, partnershipId = nu
       setItems(await load())
       setConfirm(null)
       setStatus('Invitation cancelled. That link can no longer be accepted.')
+      setStatusToken(token)
     } catch (problem) {
       setError(problem.message)
     } finally {
@@ -65,6 +67,8 @@ export function OutgoingInvitations({ userId, refreshKey = 0, partnershipId = nu
   }
   async function share(item, copy = false) {
     const url = appUrl(`/invite/${item.token}`)
+    setStatus('')
+    setStatusToken(item.token)
     try {
       if (!copy && navigator.share)
         await navigator.share({
@@ -113,6 +117,7 @@ export function OutgoingInvitations({ userId, refreshKey = 0, partnershipId = nu
                 Cancel invitation…
               </button>
             </div>
+            {statusToken === item.token && status && <p role="status">{status}</p>}
             {confirm === item.token && (
               <div>
                 <p>
@@ -132,7 +137,7 @@ export function OutgoingInvitations({ userId, refreshKey = 0, partnershipId = nu
         ),
       )}
       {error && <p role="alert">{error}</p>}
-      {status && <p role="status">{status}</p>}
+      {status && !items.some((item) => item.token === statusToken) && <p role="status">{status}</p>}
     </section>
   )
 }

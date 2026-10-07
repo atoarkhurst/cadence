@@ -179,11 +179,35 @@
   background: transparent;
   font: inherit;
   color: #294ecb;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+.invitation-actions button:not(:disabled):hover {
+  background: #eef2fc;
+  border-color: #aebce8;
+}
+.invitation-actions button:not(:disabled):active {
+  background: #dfe7fa;
+  transform: translateY(1px);
 }
 .invitation-actions .invitation-primary {
   background: #294ecb;
   color: #fff;
   border-color: #294ecb;
+}
+.invitation-actions .invitation-primary:not(:disabled):hover {
+  background: #1d3fae;
+  border-color: #1d3fae;
+  box-shadow: 0 4px 12px rgba(41, 78, 203, 0.18);
+}
+.invitation-actions .invitation-primary:not(:disabled):active {
+  background: #17348f;
+  border-color: #17348f;
+  box-shadow: none;
 }
 .outgoing-invitation strong {
   overflow-wrap: anywhere;
@@ -245,6 +269,17 @@
   padding: 10px 14px;
   font: inherit;
   font-size: 14px;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+.partners-shell .invitation-check button:not(:disabled):hover {
+  background: #dfe7fa;
+}
+.partners-shell .invitation-check button:not(:disabled):active {
+  background: #cbd8f7;
+  transform: translateY(1px);
 }
 .partners-shell .invitation-check .cheer-card {
   margin: 16px 0;
@@ -265,4 +300,10 @@
 .partners-shell button:disabled {
   opacity: 0.55;
   cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+  .invitation-actions button,
+  .partners-shell .invitation-check button {
+    transition: none;
+  }
 }

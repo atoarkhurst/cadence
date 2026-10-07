@@ -64,3 +64,16 @@ test('adding a partner creates a separate invitation without selecting or moving
   await waitFor(() => expect(api.create).toHaveBeenCalledWith(null, 'me', 'friend@example.com'))
   await screen.findByText('Invitation ready. Share the link below.')
 })
+test('copying an invitation gives feedback beside that invitation', async () => {
+  api.from.mockImplementation(() => query([item]))
+  const writeText = vi.fn().mockResolvedValue()
+  Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: { writeText },
+  })
+  render(<OutgoingInvitations userId="me" />)
+  const invitation = (await screen.findByText(/Invitation pending/)).closest('article')
+  fireEvent.click(screen.getByRole('button', { name: 'Copy link' }))
+  await waitFor(() => expect(writeText).toHaveBeenCalledOnce())
+  expect(invitation.querySelector('[role="status"]')?.textContent).toMatch(/Link copied/)
+})
