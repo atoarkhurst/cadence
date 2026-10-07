@@ -1,5 +1,6 @@
 import { loadCurrentWeek } from './cadence.js'
 import { currentWeek } from './weeks.js'
+import { activePartnership } from './active-partnership.js'
 
 const empty = (status = 'loading') => ({
   workspace: null,
@@ -26,7 +27,8 @@ export function createWeekStore(load = loadCurrentWeek) {
   }
 
   function getEntry(startsOn = null) {
-    const key = startsOn || 'current'
+    const partnershipId = activePartnership.get()
+    const key = `${partnershipId || 'default'}:${startsOn || 'current'}`
     let entry = entries.get(key)
     // Rollover also changes whether a dated plan is editable or historical.
     const workspace = entry?.snapshot.workspace
@@ -38,6 +40,7 @@ export function createWeekStore(load = loadCurrentWeek) {
       entry = {
         key,
         startsOn,
+        partnershipId,
         userId,
         snapshot: empty(userId === null ? 'signed-out' : 'loading'),
         version: 0,
@@ -58,7 +61,7 @@ export function createWeekStore(load = loadCurrentWeek) {
     notify()
     const pending = (async () => {
       try {
-        const data = await load(entry.startsOn)
+        const data = await load(entry.startsOn, entry.partnershipId)
         if (!valid()) return
         if (data.signedOut) {
           store.setUser(null)
@@ -140,3 +143,4 @@ export function createWeekStore(load = loadCurrentWeek) {
 }
 
 export const weekStore = createWeekStore()
+activePartnership.subscribe(() => weekStore.invalidate())

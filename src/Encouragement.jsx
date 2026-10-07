@@ -20,7 +20,9 @@ export default function Encouragement() {
     <main className="encouragement-shell">
       <p className="eyebrow">In your corner</p>
       <h1>Notes for you</h1>
-      <p className="encouragement-intro">The little things your partner said along the way.</p>
+      <p className="encouragement-intro">
+        Notes from your partners, with each conversation kept in its own plan.
+      </p>
       {status === 'loading' && <p role="status">Loading your notes…</p>}
       {status === 'signed-out' && (
         <p>
@@ -82,7 +84,9 @@ export default function Encouragement() {
                     })}
                   </time>
                   {note.weeks && (
-                    <Link to={`/week?week=${note.weeks.starts_on}#received-encouragement`}>
+                    <Link
+                      to={`/week?week=${note.weeks.starts_on}${note.partnership_id ? `&partnership=${note.partnership_id}` : ''}#received-encouragement`}
+                    >
                       View this week
                     </Link>
                   )}

@@ -44,7 +44,7 @@ export default function EncouragementProvider({ children }) {
       supabase
         .from('encouragement_notifications')
         .select(
-          'id, encouragement_id, read_at, created_at, weeks(starts_on), encouragements(message, encouragement_reactions(user_id)), profiles!encouragement_notifications_sender_id_fkey(display_name)',
+          'id, partnership_id, encouragement_id, read_at, created_at, weeks(starts_on), encouragements(message, encouragement_reactions(user_id)), profiles!encouragement_notifications_sender_id_fkey(display_name)',
         )
         .eq('recipient_id', userId)
         .order('created_at', { ascending: false })

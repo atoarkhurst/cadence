@@ -1,6 +1,6 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import Auth from './Auth.jsx'
 
 const auth = vi.hoisted(() => ({
@@ -39,6 +39,34 @@ const open = () =>
       <Auth />
     </MemoryRouter>,
   )
+
+test('invitation sign-in returns directly to its acceptance screen', async () => {
+  const token = '11111111-1111-4111-8111-111111111111'
+  auth.session = { user: { id: 'me', email: 'me@example.com' } }
+  render(
+    <MemoryRouter initialEntries={['/signin?invite=' + token]}>
+      <Routes>
+        <Route path="/signin" element={<Auth />} />
+        <Route path="/invite/:token" element={<p>Invitation acceptance</p>} />
+      </Routes>
+    </MemoryRouter>,
+  )
+  await screen.findByText('Invitation acceptance')
+})
+
+test('switch-account invitation does not redirect the signed-in wrong account', async () => {
+  const token = '11111111-1111-4111-8111-111111111111'
+  auth.session = { user: { id: 'other', email: 'other@example.com' } }
+  render(
+    <MemoryRouter initialEntries={['/signin?invite=' + token + '&switch=1']}>
+      <Auth />
+    </MemoryRouter>,
+  )
+  await screen.findByRole('button', { name: 'Sign out and use invited email' })
+  expect(screen.getByRole('region', { name: 'Switch invitation account' }).textContent).toContain(
+    'other@example.com',
+  )
+})
 
 test('forgot-password flow uses the allowlisted sign-in path and clear confirmation', async () => {
   open()

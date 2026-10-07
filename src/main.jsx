@@ -10,6 +10,7 @@ import Auth from './Auth.jsx'
 import Invite from './Invite.jsx'
 import Review from './Review.jsx'
 import Encouragement from './Encouragement.jsx'
+import Partners from './Partners.jsx'
 import './Mobile.css'
 import './WeekStudio.css'
 import './CadenceTheme.css'
@@ -28,6 +29,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/encouragement" element={<Encouragement />} />
           <Route path="/signin" element={<Auth />} />
           <Route path="/invite/:token" element={<Invite />} />
+          <Route path="/partners" element={<Partners />} />
         </Route>
         {/* Standalone route: no nav wrapper */}
         <Route path="/share" element={<ShareView />} />

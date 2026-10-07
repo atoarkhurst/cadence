@@ -1,15 +1,35 @@
 import { supabase } from './supabase.js'
 import { currentWeek, nextWeek, validWeek } from './weeks.js'
+import { activePartnership } from './active-partnership.js'
 
-export async function loadCurrentWeek(startsOn = null) {
+export async function loadCurrentWeek(
+  startsOn = null,
+  selectedPartnership = activePartnership.get(),
+) {
   if (startsOn && !validWeek(startsOn)) throw new Error('Choose a valid week.')
   const { data: auth, error: authError } = await supabase.auth.getUser()
   if (authError) throw authError
   const user = auth.user
   if (!user) return { signedOut: true }
 
-  const { data: partnershipId, error } = await supabase.rpc('ensure_workspace')
-  if (error) throw error
+  let partnershipId = selectedPartnership
+  if (partnershipId) {
+    const { data, error } = await supabase
+      .from('partnership_members')
+      .select('partnership_id')
+      .eq('partnership_id', partnershipId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (error) throw error
+    if (!data)
+      throw new Error(
+        'This partnership is no longer available. Choose another partner from the menu.',
+      )
+  } else {
+    const { data, error } = await supabase.rpc('ensure_workspace')
+    if (error) throw error
+    partnershipId = data
+  }
   const membership = { partnership_id: partnershipId }
 
   // These reads depend on the partnership, but not on one another.
@@ -144,39 +164,26 @@ export async function loadCurrentWeek(startsOn = null) {
 }
 
 export async function createInvitation(partnershipId, userId, email) {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (email.trim().toLowerCase() === user?.email?.toLowerCase())
-    throw new Error('Enter your partner’s email, rather than your own.')
-  const { data: pending, error: pendingError } = await supabase
-    .from('invitations')
-    .select('token, email, expires_at')
-    .eq('partnership_id', partnershipId)
-    .eq('invited_by', userId)
-    .eq('email', email.trim().toLowerCase())
-    .is('accepted_at', null)
-    .gt('expires_at', new Date().toISOString())
-    .limit(1)
-    .maybeSingle()
-  if (pendingError) throw pendingError
-  if (pending) return pending
+  // userId remains in the call signature for existing callers; identity comes
+  // exclusively from the server session, never a supplied owner ID.
+  if (!userId) throw new Error('Please sign in first.')
   const { data, error } = await supabase
-    .from('invitations')
-    .insert({
-      partnership_id: partnershipId,
-      invited_by: userId,
-      email: email.trim().toLowerCase(),
+    .rpc('create_partner_invitation', {
+      recipient_email: email.trim().toLowerCase(),
+      target_partnership: partnershipId,
     })
-    .select('token, email, expires_at')
     .single()
   if (error) throw error
   return data
 }
 
 export async function acceptInvitation(token) {
+  const account = activePartnership.getAccount()
   const { data, error } = await supabase.rpc('accept_invitation', { invitation_token: token })
   if (error) throw error
+  if (account !== activePartnership.getAccount())
+    throw new Error('Your account changed. Open the invitation again in the invited account.')
+  activePartnership.select(data)
   return data
 }
 

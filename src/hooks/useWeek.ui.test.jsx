@@ -4,12 +4,36 @@ import { useWeek } from './useWeek.js'
 import { loadCurrentWeek } from '../lib/cadence.js'
 import { weekStore } from '../lib/week-store.js'
 import { currentWeek, nextWeek } from '../lib/weeks.js'
+import { activePartnership } from '../lib/active-partnership.js'
 vi.mock('../lib/cadence.js', () => ({ loadCurrentWeek: vi.fn() }))
 beforeEach(() => weekStore.setUser('user'))
 afterEach(() => {
   cleanup()
   weekStore.setUser(undefined)
+  activePartnership.select(null)
   vi.resetAllMocks()
+})
+
+test('switching partnerships clears the old view and rejects its late response', async () => {
+  const joey = '11111111-1111-4111-8111-111111111111'
+  const amari = '22222222-2222-4222-8222-222222222222'
+  activePartnership.select(joey)
+  let finishJoey
+  loadCurrentWeek.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finishJoey = resolve
+      }),
+  )
+  const view = renderHook(() => useWeek())
+  await waitFor(() => expect(loadCurrentWeek).toHaveBeenCalledWith(null, joey))
+  loadCurrentWeek.mockResolvedValueOnce(week(7, { partnershipId: amari }))
+  act(() => activePartnership.select(amari))
+  expect(view.result.current.tasks).toEqual([])
+  await waitFor(() => expect(view.result.current.workspace?.partnershipId).toBe(amari))
+  await act(async () => finishJoey(week(99, { partnershipId: joey })))
+  expect(view.result.current.workspace.partnershipId).toBe(amari)
+  expect(view.result.current.tasks[0].count).toBe(7)
 })
 const week = (count, extra = {}) => ({
   user: { id: 'user' },

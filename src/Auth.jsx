@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useEffect, useState, useSyncExternalStore } from 'react'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { supabase } from './lib/supabase.js'
 import { appUrl } from './lib/paths.js'
 import './Auth.css'
@@ -9,6 +9,8 @@ import ProfileSettings from './ProfileSettings.jsx'
 import PartnerConnection from './PartnerConnection.jsx'
 import NotificationSettings from './NotificationSettings.jsx'
 import { disablePush } from './lib/push.js'
+import { activePartnership, validId } from './lib/active-partnership.js'
+import { getPendingInvite, rememberPendingInvite } from './lib/pending-invite.js'
 
 const sections = [
   { id: 'profile', label: 'Profile', detail: 'How you show up' },
@@ -18,6 +20,11 @@ const sections = [
 ]
 
 export default function Auth() {
+  const selectedPartnership = useSyncExternalStore(
+    activePartnership.subscribe,
+    activePartnership.get,
+  )
+  const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -38,12 +45,12 @@ export default function Auth() {
     : sections.some((item) => item.id === requestedSection)
       ? requestedSection
       : 'profile'
-  const pending = params.get('invite') || localStorage.getItem('cadence-pending-invite')
-  const invitation = /^[0-9a-f-]{36}$/i.test(pending || '') ? pending : null
+  const pending = params.get('invite') || getPendingInvite()
+  const invitation = validId(pending) ? pending : null
 
   useEffect(() => {
     let active = true
-    if (invitation) localStorage.setItem('cadence-pending-invite', invitation)
+    if (invitation) rememberPendingInvite(invitation)
     supabase.auth
       .getSession()
       .then(({ data, error }) => {
@@ -79,6 +86,13 @@ export default function Auth() {
       data.subscription.unsubscribe()
     }
   }, [invitation, setParams])
+
+  useEffect(() => {
+    // Only an explicit invitation sign-in redirects automatically. Visiting
+    // Account normally must not loop back to an old invitation in storage.
+    if (session && params.get('invite') && invitation && !recovery && params.get('switch') !== '1')
+      navigate(`/invite/${invitation}`, { replace: true })
+  }, [session, params, invitation, recovery, navigate])
 
   function changeMode(next) {
     setMode(next)
@@ -184,6 +198,17 @@ export default function Auth() {
   if (session)
     return (
       <main className="account-shell">
+        {params.get('switch') === '1' && invitation && (
+          <section className="account-feedback" aria-label="Switch invitation account">
+            <p>
+              Signed in as {session.user.email}. To accept with a different email, sign out first.
+              Your invitation will be kept.
+            </p>
+            <button className="auth-secondary" disabled={busy} onClick={signOut}>
+              Sign out and use invited email
+            </button>
+          </section>
+        )}
         <header className="account-header">
           <div>
             <p className="account-eyebrow">Settings</p>
@@ -230,8 +255,11 @@ export default function Auth() {
             </div>
             <div hidden={section !== 'partnership'}>
               <p className="account-eyebrow">02 / Partner & week</p>
-              <PartnerConnection key={session.user.id} userId={session.user.id} />
-              <WeekSchedule key={'schedule-' + session.user.id} />
+              <PartnerConnection
+                key={`${session.user.id}:${selectedPartnership}`}
+                userId={session.user.id}
+              />
+              <WeekSchedule key={`schedule:${session.user.id}:${selectedPartnership}`} />
             </div>
             <div hidden={section !== 'notifications'}>
               <p className="account-eyebrow">03 / Notifications</p>
@@ -308,10 +336,13 @@ export default function Auth() {
             <p>
               {mode === 'reset'
                 ? 'If an account exists for this email, you’ll receive a link to choose a new password.'
-                : 'We’ve sent a sign-in link to your email. Open it on the device where you want to use Cadence.'}
+                : 'Check your email to continue. If you’re new to Cadence, confirm your address to finish setting up your account. If you’ve been here before, use the sign-in link.'}
             </p>
             <p className="signin-email">{email.trim()}</p>
-            <p>Can’t find it? Check your spam folder. Delivery can take a few minutes.</p>
+            <p>
+              Look for an email with a confirmation or sign-in link. Check spam if it hasn’t arrived
+              after a few minutes.
+            </p>
             <button className="auth-secondary" onClick={() => changeMode('password')}>
               Back to sign in
             </button>
@@ -322,7 +353,7 @@ export default function Auth() {
               {mode === 'reset'
                 ? 'Enter your account email and we’ll send you a password reset link.'
                 : mode === 'link'
-                  ? 'New here or prefer an email link? We’ll send you a secure way to sign in.'
+                  ? 'New here? We’ll send a link to confirm your email. Returning? The link signs you in.'
                   : 'A few intentions. Someone in your corner.'}
             </p>
             {recovery && (

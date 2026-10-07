@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase.js'
 import { acceptInvitation } from './lib/cadence.js'
 import { weekStore } from './lib/week-store.js'
+import { useNavigate } from 'react-router-dom'
+import { clearPendingInvite } from './lib/pending-invite.js'
 
 export default function PartnerInvitations({ user, onAccepted }) {
+  const navigate = useNavigate()
   const [invites, setInvites] = useState([])
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
@@ -50,10 +53,10 @@ export default function PartnerInvitations({ user, onAccepted }) {
     try {
       await acceptInvitation(token)
       weekStore.invalidate()
-      if (localStorage.getItem('cadence-pending-invite') === token)
-        localStorage.removeItem('cadence-pending-invite')
+      clearPendingInvite(token)
       setInvites((items) => items.filter((item) => item.token !== token))
       await onAccepted()
+      navigate('/week')
     } catch (error) {
       setMessage(error.message)
     } finally {
@@ -84,7 +87,10 @@ export default function PartnerInvitations({ user, onAccepted }) {
         <div className="cheer-card" key={invite.token}>
           <p>
             <strong>{invite.name} invited you</strong>
-            <small>Connect to see each other’s goals and send encouragement.</small>
+            <small>
+              Start a shared plan together. Your existing goals and other partnerships stay
+              unchanged.
+            </small>
             <button disabled={busy} onClick={() => accept(invite.token)}>
               {busy ? 'Connecting…' : 'Accept invitation'}
             </button>

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build && node scripts/prepare-pages-build.mjs",
     "lint": "eslint .",
-    "test": "node --test src/lib/*.test.js && node scripts/test-weekly-review.mjs && node scripts/test-week-schedule.mjs && node scripts/test-encouragement.mjs && node scripts/test-push-worker.mjs && node scripts/test-hardening.mjs && node scripts/test-reactions.mjs && npm run test:ui",
+    "test": "node --test src/lib/*.test.js && node scripts/test-weekly-review.mjs && node scripts/test-week-schedule.mjs && node scripts/test-encouragement.mjs && node scripts/test-push-worker.mjs && node scripts/test-hardening.mjs && node scripts/test-reactions.mjs && node scripts/test-partnerships.mjs && npm run test:ui",
     "test:ui": "vitest run --config vitest.config.js",
     "format": "prettier --write src scripts docs README.md *.json *.js .github/workflows/*.yml",
     "format:check": "prettier --check src scripts docs README.md *.json *.js .github/workflows/*.yml",

@@ -1,10 +1,12 @@
-import { useLayoutEffect } from 'react'
+import { useLayoutEffect, useRef, useSyncExternalStore } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import './Root.css'
 import './Encouragement.css'
 import EncouragementProvider from './EncouragementProvider.jsx'
 import { useEncouragement } from './lib/encouragement-context.js'
 import { useWeekSession } from './hooks/useWeekSession.js'
+import { activePartnership, validId } from './lib/active-partnership.js'
+import PartnershipPicker from './PartnershipPicker.jsx'
 
 // Root is a layout route: it renders the nav, then <Outlet> which React Router
 // fills with whichever child route matched. /share is registered as a sibling
@@ -20,7 +22,19 @@ function Root() {
 
 function Navigation() {
   const { unreadCount, userId } = useEncouragement()
-  const { pathname, hash } = useLocation()
+  const { pathname, hash, search } = useLocation()
+  const selected = useSyncExternalStore(activePartnership.subscribe, activePartnership.get)
+  const requested = new URLSearchParams(search).get('partnership')
+  const requestKey = userId && validId(requested) ? `${userId}:${requested}` : null
+  const appliedRequest = useRef(null)
+  useLayoutEffect(() => {
+    if (!requestKey) {
+      appliedRequest.current = null
+    } else if (appliedRequest.current !== requestKey) {
+      appliedRequest.current = requestKey
+      if (requested !== selected) activePartnership.select(requested)
+    }
+  }, [requestKey, requested, selected])
 
   useLayoutEffect(() => {
     if (!hash) window.scrollTo(0, 0)
@@ -30,6 +44,7 @@ function Navigation() {
     <>
       <nav className="main-nav" aria-label="Main navigation">
         <span className="wordmark">cadence</span>
+        {userId && <PartnershipPicker key={userId} userId={userId} />}
         <div className="nav-account-tools">
           {userId && (
             <NavLink
@@ -118,7 +133,7 @@ function Navigation() {
           </div>
         </div>
       </nav>
-      <Outlet key={userId || 'signed-out'} />
+      <Outlet key={`${userId || 'signed-out'}:${selected || 'default'}`} />
     </>
   )
 }

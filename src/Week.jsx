@@ -11,6 +11,7 @@ import { useWeek } from './hooks/useWeek.js'
 import { appUrl } from './lib/paths.js'
 import './Week.css'
 import PartnerInvitations from './PartnerInvitations.jsx'
+import { OutgoingInvitations } from './Partners.jsx'
 import { dayNames, weekLabel } from './lib/weeks.js'
 import './Review.css'
 import { isComplete } from './lib/partnership.js'
@@ -105,7 +106,6 @@ function WeeklyPlan({ requestedWeek }) {
     saveChange,
   })
   const [invitation, setInvitation] = useState(null)
-  const [inviteCopied, setInviteCopied] = useState(false)
 
   useEffect(() => {
     if (!copied) return
@@ -215,7 +215,6 @@ function WeeklyPlan({ requestedWeek }) {
         inviteEmail,
       )
       setInvitation({ ...created, link: appUrl(`/invite/${created.token}`) })
-      setInviteCopied(false)
       setError('')
     } catch (nextError) {
       setError(nextError.message)
@@ -655,8 +654,9 @@ function WeeklyPlan({ requestedWeek }) {
                 onAccepted={refreshWeek}
               />
               <p className="hero-copy">
-                Enter the email your partner uses for Cadence. They can accept on their “This week”
-                page, or you can send them an invitation link. We won’t send an email.
+                Only you can see this plan right now. Invite someone here to share this plan and its
+                goals with them. To start a separate plan, use Add a partner in the menu above. You
+                can share the invitation link yourself; Cadence won’t send an email.
               </p>
               <form
                 className="cheer-form"
@@ -678,48 +678,11 @@ function WeeklyPlan({ requestedWeek }) {
                   →
                 </button>
               </form>
-              {invitation && (
-                <div className="cheer-card own">
-                  <div className="invitation-result">
-                    <strong>Invitation ready for {invitation.email}</strong>
-                    <small>
-                      Send this link to your partner. They’ll need to sign in with that email to
-                      accept. If they’re already signed in, they can also check for invitations on
-                      “This week”.
-                    </small>
-                    <small>
-                      Expires{' '}
-                      {new Date(invitation.expires_at).toLocaleString(undefined, {
-                        dateStyle: 'medium',
-                        timeStyle: 'short',
-                      })}
-                      .
-                    </small>
-                    <input
-                      aria-label="Invitation link"
-                      readOnly
-                      value={invitation.link}
-                      onFocus={(event) => event.target.select()}
-                    />
-                    <button
-                      className="review-primary"
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(invitation.link)
-                          setInviteCopied(true)
-                        } catch {
-                          setError('Select and copy the invitation link above.')
-                        }
-                      }}
-                    >
-                      {inviteCopied ? 'Link copied ✓' : 'Copy invitation link'}
-                    </button>
-                    <span role="status">
-                      {inviteCopied ? 'Ready to paste into a text or message.' : ''}
-                    </span>
-                  </div>
-                </div>
-              )}
+              <OutgoingInvitations
+                userId={workspace.user.id}
+                partnershipId={workspace.partnershipId}
+                refreshKey={invitation?.token}
+              />
               {error && (
                 <div className="cheer-card">
                   <p>

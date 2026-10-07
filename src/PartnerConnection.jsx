@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase.js'
 import { choosePartnership } from './lib/partnership.js'
 import { weekStore } from './lib/week-store.js'
+import { activePartnership } from './lib/active-partnership.js'
+import { clearPendingInvite } from './lib/pending-invite.js'
 
 export default function PartnerConnection({ userId }) {
   const [connection, setConnection] = useState(null)
@@ -19,7 +21,10 @@ export default function PartnerConnection({ userId }) {
           .from('partnership_members')
           .select('partnership_id,user_id')
         if (error) throw error
-        const own = choosePartnership(data, userId)
+        const selected = activePartnership.get()
+        const own = selected
+          ? data.find((m) => m.partnership_id === selected && m.user_id === userId)
+          : choosePartnership(data, userId)
         const partner = data.find(
           (m) => m.partnership_id === own?.partnership_id && m.user_id !== userId,
         )
@@ -55,7 +60,8 @@ export default function PartnerConnection({ userId }) {
       })
       if (error) throw error
       weekStore.invalidate()
-      localStorage.removeItem('cadence-pending-invite')
+      activePartnership.select(null)
+      clearPendingInvite()
       setConnection(null)
       setConfirming(false)
       setDisconnected(true)
@@ -113,7 +119,7 @@ export default function PartnerConnection({ userId }) {
                 ? 'You’re disconnected. Your goals and progress are still yours.'
                 : 'No partner connected yet.'}
             </p>
-            <Link to={'/week'}>Invite a partner from your week →</Link>
+            <Link to="/partners">Manage partners and invitations →</Link>
           </>
         )
       )}
