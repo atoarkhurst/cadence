@@ -6,8 +6,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fafaf8",
-  "theme_color": "#fafaf8",
+  "background_color": "#faf4e8",
+  "theme_color": "#faf4e8",
   "icons": [
     {
       "src": "cadence-paired-192.png",
